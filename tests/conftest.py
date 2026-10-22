@@ -58,7 +58,7 @@ def consumption_history_df() -> pd.DataFrame:
                 {
                     "material":    mat,
                     "period":      m,
-                    "consumption": base + (i % 3),  # slight variation
+                    "consumption": base + (i % 3),
                 }
             )
     return pd.DataFrame(rows)

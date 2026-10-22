@@ -118,7 +118,6 @@ class TestFlagOverstock:
         assert isinstance(flag_overstock(stock_df), pd.DataFrame)
 
     def test_high_doh_material_flagged(self) -> None:
-        # DOH = 500 / (10/30) = 1500 days → overstock at 365-day threshold
         df = pd.DataFrame({
             "material": ["MAT_HIGH"],
             "stock_qty": [500],
@@ -133,7 +132,6 @@ class TestFlagOverstock:
         assert "MAT_HIGH" in result["material"].values
 
     def test_low_doh_material_not_flagged(self) -> None:
-        # DOH = 10 / (30/30) = 10 days → not overstock
         df = pd.DataFrame({
             "material": ["MAT_LOW"],
             "stock_qty": [10],
@@ -192,7 +190,6 @@ class TestHighHoldingsValue:
         assert high_holdings_value(stock_df) >= 0.0
 
     def test_zero_when_nothing_overstocked(self) -> None:
-        # All materials have very high consumption → low DOH → no overstock
         df = pd.DataFrame({
             "material": ["MAT001"],
             "stock_qty": [10],
@@ -202,12 +199,10 @@ class TestHighHoldingsValue:
         assert high_holdings_value(df, doh_threshold=365.0) == pytest.approx(0.0)
 
     def test_known_high_holdings_value(self) -> None:
-        # Single material: stock=500, price=10, consumption=1/month → DOH=15000 → overstock
         df = pd.DataFrame({
             "material": ["MAT_OVER"],
             "stock_qty": [500],
             "unit_price": [10.0],
             "avg_monthly_consumption": [1],
         })
-        # 500 * 10 = 5000
         assert high_holdings_value(df, doh_threshold=365.0) == pytest.approx(5000.0)
