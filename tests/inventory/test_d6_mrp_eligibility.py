@@ -50,7 +50,8 @@ def mrp_eligible(
         return False
     std = float(mat_data.std(ddof=1)) if len(mat_data) > 1 else 0.0
     cv = std / mean
-    return cv <= cv_threshold
+    # Explicit cast ensures a Python bool, not np.bool_, is returned.
+    return bool(cv <= cv_threshold)
 
 
 def mrp_eligibility_df(
@@ -177,12 +178,14 @@ class TestMrpEligibilityDf:
         assert len(result) == mixed_history["material"].nunique()
 
     def test_stable_material_eligible(self, mixed_history: pd.DataFrame) -> None:
+        # mrp_eligible returns a Python bool; DataFrame stores it as bool dtype.
+        # Use == rather than `is` to avoid np.bool_ identity failure.
         result = mrp_eligibility_df(mixed_history).set_index("material")
-        assert result.loc["MAT_A", "mrp_eligible"] is True
+        assert result.loc["MAT_A", "mrp_eligible"] == True  # noqa: E712
 
     def test_zero_consumption_material_not_eligible(self, mixed_history: pd.DataFrame) -> None:
         result = mrp_eligibility_df(mixed_history).set_index("material")
-        assert result.loc["MAT_B", "mrp_eligible"] is False
+        assert result.loc["MAT_B", "mrp_eligible"] == False  # noqa: E712
 
     def test_material_column_present(self, mixed_history: pd.DataFrame) -> None:
         result = mrp_eligibility_df(mixed_history)
@@ -196,5 +199,5 @@ class TestMrpEligibilityDf:
         })
         tight = mrp_eligibility_df(history, cv_threshold=0.2).set_index("material")
         loose = mrp_eligibility_df(history, cv_threshold=1.0).set_index("material")
-        assert tight.loc["MAT_MID", "mrp_eligible"] is False
-        assert loose.loc["MAT_MID", "mrp_eligible"] is True
+        assert tight.loc["MAT_MID", "mrp_eligible"] == False  # noqa: E712
+        assert loose.loc["MAT_MID", "mrp_eligible"] == True  # noqa: E712
