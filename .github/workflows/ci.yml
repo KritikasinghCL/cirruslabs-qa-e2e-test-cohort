@@ -1,0 +1,65 @@
+# CI pipeline — runs on every pull request targeting main.
+# Steps: install -> lint -> type-check -> test.
+# Any step that fails exits non-zero and blocks the merge.
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - "feature/**"
+
+jobs:
+  build:
+    name: Install . Lint . Type-check . Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install runtime dependencies
+        run: pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Install dev / test dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint with flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --statistics
+
+      - name: Type-check with mypy
+        run: mypy .
+
+      - name: Run tests with pytest
+        env:
+          RUN_INTEGRATION_TESTS: "0"
+          LOG_LEVEL: "INFO"
+        run: |
+          pytest -v --tb=short --junitxml=test-results.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-py${{ matrix.python-version }}
+          path: test-results.xml
+          retention-days: 14

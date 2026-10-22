@@ -1,0 +1,27 @@
+# Development / CI toolchain — not needed at runtime.
+# Install with: pip install -r requirements-dev.txt
+
+# Test runner
+pytest>=7.4,<8
+
+# Coverage
+pytest-cov>=4.1,<5
+
+# Linting & formatting
+flake8>=6.1,<7
+black>=23.1,<24
+
+# Type checking
+mypy>=1.6,<2
+
+# HTTP mocking / test utilities
+responses>=0.24,<1
+
+# Async test support
+pytest-asyncio>=0.21,<1
+
+# Env var management in tests
+python-dotenv>=1.0,<2
+
+# Reporting
+allure-pytest>=2.13,<3
