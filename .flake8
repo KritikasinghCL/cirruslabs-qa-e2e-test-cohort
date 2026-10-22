@@ -1,0 +1,26 @@
+[flake8]
+# Match the line length used in the codebase.
+max-line-length = 100
+
+# E203 — whitespace before ':' (conflicts with black-style slice formatting)
+# W503 — line break before binary operator (PEP 8 now prefers W504)
+ignore = E203, W503
+
+# Never lint generated files, virtual envs, or build artefacts.
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .eggs,
+    *.egg-info,
+    dist,
+    build,
+    forecast_output.csv
+
+# Warn on complexity — don't fail, just flag.
+max-complexity = 12
+
+per-file-ignores =
+    # Test files: allow assert statements and long lines in fixture data.
+    tests/*:E501
