@@ -1,0 +1,13 @@
+# Development / CI toolchain — not needed at runtime.
+# Install with: pip install -r requirements-dev.txt
+
+# Test runner
+pytest>=7.4,<9
+pytest-cov>=4.1,<6
+
+# Linter
+flake8>=6.1,<8
+
+# Type checker
+mypy>=1.6,<2
+pandas-stubs>=2.1,<3
