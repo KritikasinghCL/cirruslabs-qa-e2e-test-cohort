@@ -51,14 +51,6 @@ def flag_smi(
 def nmi_smi_value(df: pd.DataFrame, smi_threshold: float = 5.0) -> dict:
     """
     Return the total inventory value tied up in NMI and SMI materials.
-
-    Returns
-    -------
-    dict with keys:
-        nmi_value : float  — value of non-moving stock
-        smi_value : float  — value of slow-moving stock
-        nmi_count : int
-        smi_count : int
     """
     nmi = flag_nmi(df)
     smi = flag_smi(df, low_threshold=smi_threshold)
@@ -110,13 +102,10 @@ class TestFlagNMI:
         assert (result["stock_qty"] > 0).all()
 
     def test_zero_stock_zero_consumption_not_nmi(self) -> None:
-        """A material with zero stock is NOT NMI even if consumption is zero."""
         df = pd.DataFrame({"stock_qty": [0], "avg_monthly_consumption": [0]})
         assert flag_nmi(df).empty
 
     def test_known_nmi_count(self, stock_df: pd.DataFrame) -> None:
-        # MAT001: consumption=0, stock=100 → NMI
-        # MAT002: consumption=0, stock=0  → NOT NMI (no stock)
         result = flag_nmi(stock_df)
         assert len(result) == 1
         assert result.iloc[0]["material"] == "MAT001"
@@ -147,8 +136,6 @@ class TestFlagSMI:
         assert (result["stock_qty"] > 0).all()
 
     def test_known_smi_materials(self, stock_df: pd.DataFrame) -> None:
-        # MAT003: consumption=2.0, stock=50  → SMI (0 < 2 < 5)
-        # MAT005: consumption=3.5, stock=80  → SMI (0 < 3.5 < 5)
         result = flag_smi(stock_df, low_threshold=5.0)
         assert "MAT003" in result["material"].values
         assert "MAT005" in result["material"].values
@@ -190,7 +177,6 @@ class TestNmiSmiValue:
         assert result["smi_value"] >= 0.0
 
     def test_known_nmi_value(self, stock_df: pd.DataFrame) -> None:
-        # MAT001: stock=100, price=10 → NMI value = 1000
         result = nmi_smi_value(stock_df)
         assert result["nmi_value"] == pytest.approx(1000.0)
 

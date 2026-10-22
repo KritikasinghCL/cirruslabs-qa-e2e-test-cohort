@@ -23,7 +23,6 @@ import pandas as pd
 # Logic module
 # ---------------------------------------------------------------------------
 
-# Categories that represent critical / vital / insurance spares.
 _CRITICAL_CATEGORIES = {"SPARE", "VITAL", "INSURANCE", "ZSPR"}
 
 
@@ -35,10 +34,6 @@ def flag_understock(df: pd.DataFrame) -> pd.DataFrame:
 def flag_critical_at_risk(df: pd.DataFrame) -> pd.DataFrame:
     """
     Return rows that are both understocked AND in a critical spare category.
-
-    Parameters
-    ----------
-    df : DataFrame with columns: stock_qty, reorder_point, category.
     """
     under = flag_understock(df)
     mask = under["category"].str.upper().isin(_CRITICAL_CATEGORIES)
@@ -51,9 +46,6 @@ def stockout_risk_days(
 ) -> pd.DataFrame:
     """
     Return understocked rows enriched with days_until_stockout.
-
-    days_until_stockout = stock_qty / (avg_monthly_consumption / 30),
-    capped at lead_time_days so the urgency is visible.
     """
     under = flag_understock(df).copy()
     if under.empty:
@@ -108,7 +100,7 @@ class TestFlagUnderstock:
             assert row["stock_qty"] < row["reorder_point"]
 
     def test_known_understock_count(self, stock_df: pd.DataFrame) -> None:
-        # MAT001 (5<10), MAT003 (0<10), MAT005 (3<10) → 3 understocked
+        # MAT001 (5<10), MAT003 (0<10), MAT005 (3<10) -> 3 understocked
         result = flag_understock(stock_df)
         assert len(result) == 3
 
@@ -145,14 +137,11 @@ class TestFlagCriticalAtRisk:
         assert (result["stock_qty"] < result["reorder_point"]).all()
 
     def test_known_critical_at_risk_materials(self, stock_df: pd.DataFrame) -> None:
-        # MAT001 (SPARE, 5<10) and MAT005 (VITAL, 3<10) are critical at risk
-        # MAT003 (SPARE, 0<10) is also critical at risk
         result = flag_critical_at_risk(stock_df)
         assert "MAT001" in result["material"].values
         assert "MAT005" in result["material"].values
 
     def test_consumable_not_in_critical_at_risk(self, stock_df: pd.DataFrame) -> None:
-        # MAT002 is CONSUMABLE — even if understocked it is not critical
         result = flag_critical_at_risk(stock_df)
         assert "MAT002" not in result["material"].values
 
