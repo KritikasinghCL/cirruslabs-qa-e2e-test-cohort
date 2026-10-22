@@ -35,12 +35,6 @@ def mrp_eligible(
 ) -> bool:
     """
     Return True if *material* is MRP-eligible.
-
-    Parameters
-    ----------
-    history : DataFrame with columns: material, period, consumption.
-    material : Material code to evaluate.
-    cv_threshold : Maximum allowed coefficient of variation (default 0.5).
     """
     mat_data = history[history["material"] == material]["consumption"]
     if mat_data.empty:
@@ -50,7 +44,6 @@ def mrp_eligible(
         return False
     std = float(mat_data.std(ddof=1)) if len(mat_data) > 1 else 0.0
     cv = std / mean
-    # Explicit cast ensures a Python bool, not np.bool_, is returned.
     return bool(cv <= cv_threshold)
 
 
@@ -60,11 +53,6 @@ def mrp_eligibility_df(
 ) -> pd.DataFrame:
     """
     Return a DataFrame with one row per material and a boolean mrp_eligible column.
-
-    Parameters
-    ----------
-    history : DataFrame with columns: material, period, consumption.
-    cv_threshold : Maximum allowed CV (default 0.5).
     """
     materials = history["material"].unique()
     rows = [
@@ -136,7 +124,6 @@ class TestMrpEligible:
         assert mrp_eligible(erratic_history, "MAT_ERRATIC", cv_threshold=0.5) is False
 
     def test_single_period_nonzero_is_eligible(self) -> None:
-        # std = 0 for a single data point → CV = 0 → eligible
         history = pd.DataFrame({
             "material": ["MAT_ONE"],
             "period": [pd.Timestamp("2025-12-01")],
@@ -150,7 +137,6 @@ class TestMrpEligible:
             "period": pd.date_range("2024-01-01", periods=12, freq="MS"),
             "consumption": [5, 10, 15, 5, 10, 15, 5, 10, 15, 5, 10, 15],
         })
-        # Tight threshold → erratic; loose threshold → eligible
         assert mrp_eligible(history, "MAT_MID", cv_threshold=0.2) is False
         assert mrp_eligible(history, "MAT_MID", cv_threshold=1.0) is True
 
@@ -178,8 +164,6 @@ class TestMrpEligibilityDf:
         assert len(result) == mixed_history["material"].nunique()
 
     def test_stable_material_eligible(self, mixed_history: pd.DataFrame) -> None:
-        # mrp_eligible returns a Python bool; DataFrame stores it as bool dtype.
-        # Use == rather than `is` to avoid np.bool_ identity failure.
         result = mrp_eligibility_df(mixed_history).set_index("material")
         assert result.loc["MAT_A", "mrp_eligible"] == True  # noqa: E712
 

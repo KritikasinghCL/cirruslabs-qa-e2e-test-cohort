@@ -49,7 +49,7 @@ def prioritise_prs(
     """
     Return PR suggestions sorted by pr_qty descending with a priority_rank column.
 
-    Only rows with pr_qty > 0 are included (no PR needed for overstocked materials).
+    Only rows with pr_qty > 0 are included.
     """
     result = suggest_pr_qty(df, forecast_months=forecast_months)
     result = result[result["pr_qty"] > 0].copy()
@@ -64,10 +64,6 @@ def suggested_pr_date(
 ) -> pd.Timestamp:
     """
     Return the suggested PR raise date.
-
-    PR should be raised *lead_time_days* before the stockout date;
-    here we return reference_date + lead_time_days as the target delivery
-    date (the PR must be raised immediately).
     """
     if reference_date is None:
         reference_date = date.today()
@@ -165,7 +161,6 @@ class TestPrioritisePRs:
             assert rank1.iloc[0]["pr_qty"] == result["pr_qty"].max()
 
     def test_overstocked_material_excluded(self, stock_df: pd.DataFrame) -> None:
-        # MAT002 has stock=1000, consumption=5 → pr_qty=0 → excluded
         result = prioritise_prs(stock_df)
         assert "MAT002" not in result["material"].values
 
