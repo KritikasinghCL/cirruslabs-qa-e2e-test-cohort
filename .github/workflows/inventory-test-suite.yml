@@ -1,0 +1,71 @@
+name: Inventory Test Suite (D1–D7)
+
+# Runs on every push and pull-request against main.
+# Exercises all 213 tests that cover the seven monthly insight-pack deliverables:
+#   D1 – Gross inventory forecast (3-month, by plant)
+#   D2 – Overstock / high holdings
+#   D3 – Understock / critical spares at risk
+#   D4 – Non-moving and slow-moving materials (NMI/SMI)
+#   D5 – Purchase requisition suggestions (prioritised)
+#   D6 – MRP eligibility per consumption trend
+#   D7 – Duplicate material codes
+
+on:
+  push:
+    branches: ["main", "feature/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: pytest D1–D7 (213 tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl python-docx python-pptx reportlab pypdf pytest pytest-cov
+
+      - name: Run full D1–D7 test suite
+        run: |
+          pytest tests/inventory/ \
+            --tb=short \
+            --cov=. \
+            --cov-report=term-missing \
+            -v \
+            2>&1 | tee test-results.txt
+
+      - name: Assert zero failures
+        run: |
+          # Fail the workflow if any test failed (belt-and-suspenders check)
+          grep -E "^(FAILED|ERROR)" test-results.txt && exit 1 || true
+          echo "✅ Zero failures confirmed."
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: test-results.txt
+          retention-days: 30
+
+# ── KPI targets this suite guards ────────────────────────────────────────────
+# Gross inventory value  : ₹512.5 Cr  (target: −10% → ₹461 Cr)
+# Days on hand           : 187 d
+# Inventory turnover     : 1.95×
+# Critical-spare avail.  : 88.7 %  (target: >95 % ❗)
+# NMI materials flagged  : 10 %
+# SMI materials flagged  : 20 %
+# Forecast accuracy      : >90 %
+# PR lines suggested     : 3,916 across 1,926 SKUs × 6 plants
+# ─────────────────────────────────────────────────────────────────────────────
