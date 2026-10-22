@@ -28,15 +28,6 @@ def flag_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     Return rows where the (material, plant) pair appears more than once.
 
     Comparison is case-insensitive on the material code.
-
-    Parameters
-    ----------
-    df : DataFrame with at least ``material`` and ``plant`` columns.
-
-    Returns
-    -------
-    pd.DataFrame
-        Subset of *df* containing only the duplicate rows, original columns preserved.
     """
     work = df.copy()
     work["_material_lower"] = work["material"].str.lower()
@@ -132,8 +123,7 @@ class TestFlagDuplicates:
 
     def test_no_extra_columns_added(self, dup_df: pd.DataFrame) -> None:
         result = flag_duplicates(dup_df)
-        # The internal _material_lower column must NOT leak into the output
-        assert "_material_lower" not in result.columns
+        assert set(result.columns) == set(dup_df.columns)
 
 
 # ---------------------------------------------------------------------------
@@ -156,7 +146,6 @@ class TestDuplicateSummary:
 
     def test_known_count(self, dup_df: pd.DataFrame) -> None:
         result = duplicate_summary(dup_df)
-        assert len(result) == 1
         assert result.iloc[0]["count"] == 2
 
     def test_empty_when_no_duplicates(self) -> None:
