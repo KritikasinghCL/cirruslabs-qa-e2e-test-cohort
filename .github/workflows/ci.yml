@@ -1,0 +1,85 @@
+# CI pipeline — runs on every pull request targeting main.
+#
+# Gates (all must pass; any failure fails the build):
+#   1. install   — pip install all declared dependencies
+#   2. lint      — flake8 style and error check
+#   3. typecheck — mypy static type analysis
+#   4. test      — pytest suite
+#
+# A red pipeline means the PR is not ready to merge.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Install · Lint · Type-check · Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout
+      # -----------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # 2. Set up Python
+      # -----------------------------------------------------------------------
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      # -----------------------------------------------------------------------
+      # 3. Install dependencies
+      # -----------------------------------------------------------------------
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # -----------------------------------------------------------------------
+      # 4. Lint — flake8
+      #    Fail on syntax errors, undefined names, and style violations.
+      #    E501 (line too long) is set to 120 chars to match the test file style.
+      # -----------------------------------------------------------------------
+      - name: Lint (flake8)
+        run: |
+          flake8 . \
+            --max-line-length=120 \
+            --extend-ignore=E203,W503 \
+            --exclude=.git,.venv,__pycache__,.pytest_cache
+
+      # -----------------------------------------------------------------------
+      # 5. Type-check — mypy
+      #    Runs in non-strict mode; fails only on clear type errors.
+      #    --ignore-missing-imports lets the suite grow without pinning stubs.
+      # -----------------------------------------------------------------------
+      - name: Type-check (mypy)
+        run: |
+          mypy tests/ \
+            --ignore-missing-imports \
+            --no-strict-optional \
+            --python-version=${{ matrix.python-version }}
+
+      # -----------------------------------------------------------------------
+      # 6. Test — pytest
+      #    -v  verbose output so failures are readable in the log
+      #    --tb=short  compact tracebacks
+      #    Exit code is non-zero on any failure, which fails the job.
+      # -----------------------------------------------------------------------
+      - name: Test (pytest)
+        run: |
+          python -m pytest tests/ -v --tb=short

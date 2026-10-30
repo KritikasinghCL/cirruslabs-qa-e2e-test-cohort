@@ -1,0 +1,11 @@
+# Runtime / test dependencies for cirruslabs-qa-e2e-test-cohort
+# Pin minor versions so CI is reproducible; bump deliberately.
+
+# Test runner
+pytest>=7.4,<9.3
+
+# Linter
+flake8>=6.0,<8.0
+
+# Static type checker
+mypy>=1.5,<2.0
