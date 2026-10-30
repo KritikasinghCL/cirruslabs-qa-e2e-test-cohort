@@ -1,0 +1,27 @@
+# Environment secrets — copy .env.example → .env and fill in values locally
+.env
+.env.local
+.env.*.local
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# pytest artefacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.xml
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
