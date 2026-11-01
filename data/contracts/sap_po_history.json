@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sap_po_history.json",
+  "title": "SAP Purchase Order History",
+  "description": "Purchase order header (EKKO) and item (EKPO) data with goods-receipt history (EKBE). One row per PO line item.",
+  "type": "object",
+  "properties": {
+    "po_number": {
+      "type": "string",
+      "description": "EKKO-EBELN. Purchase order number.",
+      "minLength": 1
+    },
+    "line_item": {
+      "type": "string",
+      "description": "EKPO-EBELP. PO line item number.",
+      "minLength": 1
+    },
+    "material_number": {
+      "type": "string",
+      "description": "EKPO-MATNR. SAP material number.",
+      "minLength": 1
+    },
+    "plant": {
+      "type": "string",
+      "description": "EKPO-WERKS. Receiving plant.",
+      "minLength": 1
+    },
+    "vendor_number": {
+      "type": ["string", "null"],
+      "description": "EKKO-LIFNR. Vendor/supplier account number."
+    },
+    "order_quantity": {
+      "type": "number",
+      "description": "EKPO-MENGE. Ordered quantity in order unit."
+    },
+    "unit": {
+      "type": "string",
+      "description": "EKPO-MEINS. Order unit of measure.",
+      "minLength": 1
+    },
+    "net_price": {
+      "type": ["number", "null"],
+      "description": "EKPO-NETPR. Net price per price unit."
+    },
+    "currency": {
+      "type": ["string", "null"],
+      "description": "EKKO-WAERS. Document currency."
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date",
+      "description": "EKKO-BEDAT. PO creation / order date (ISO 8601)."
+    },
+    "delivery_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "EKET-EINDT. Committed delivery date (ISO 8601)."
+    },
+    "goods_receipt_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "EKBE-BUDAT. Posting date of the goods receipt (ISO 8601). Null if not yet received."
+    },
+    "goods_receipt_quantity": {
+      "type": ["number", "null"],
+      "description": "EKBE-MENGE. Quantity received against this line. Null/0 if not yet received."
+    },
+    "open_quantity": {
+      "type": ["number", "null"],
+      "description": "Derived: order_quantity minus goods_receipt_quantity. Quantity still open."
+    }
+  },
+  "required": [
+    "po_number",
+    "line_item",
+    "material_number",
+    "plant",
+    "order_quantity",
+    "unit",
+    "order_date"
+  ],
+  "additionalProperties": true
+}

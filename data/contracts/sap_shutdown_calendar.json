@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sap_shutdown_calendar.json",
+  "title": "SAP Shutdown / Maintenance Calendar",
+  "description": "Planned shutdown and maintenance windows from SAP Plant Maintenance (PM). One row per shutdown event. Used to flag shutdown-driven demand and exclude/attribute consumption during shutdowns.",
+  "type": "object",
+  "properties": {
+    "shutdown_id": {
+      "type": "string",
+      "description": "Unique identifier for the shutdown event.",
+      "minLength": 1
+    },
+    "plant": {
+      "type": "string",
+      "description": "Plant code the shutdown applies to, e.g. VED-ZAM-001.",
+      "minLength": 1
+    },
+    "shutdown_type": {
+      "type": "string",
+      "description": "Classification, e.g. PLANNED, UNPLANNED, TURNAROUND, STATUTORY.",
+      "minLength": 1
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Shutdown window start date (ISO 8601)."
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Shutdown window end date (ISO 8601)."
+    },
+    "duration_days": {
+      "type": ["integer", "null"],
+      "description": "Derived duration in days (end_date - start_date)."
+    },
+    "affected_equipment": {
+      "type": ["string", "null"],
+      "description": "Equipment / functional location affected (PM EQUNR or TPLNR)."
+    },
+    "maintenance_order": {
+      "type": ["string", "null"],
+      "description": "AUFNR. PM maintenance order number linked to the shutdown."
+    }
+  },
+  "required": [
+    "shutdown_id",
+    "plant",
+    "shutdown_type",
+    "start_date",
+    "end_date"
+  ],
+  "additionalProperties": true
+}
