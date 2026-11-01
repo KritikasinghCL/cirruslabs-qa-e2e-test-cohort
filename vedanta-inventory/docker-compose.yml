@@ -1,0 +1,84 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Vedanta Inventory Forecasting & Dashboard — local dev stack
+# Usage:  docker-compose up --build
+# App:    http://localhost:8080
+#
+# All credentials and data paths are injected via environment variables.
+# Copy .env.example → .env and fill in values before running.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: /api
+    image: vedanta-inventory:latest
+    container_name: vedanta-inventory-app
+    ports:
+      - "8080:8080"
+    environment:
+      # ── App mode ─────────────────────────────────────────────────────────
+      ENV: ${ENV:-development}
+      # Set USE_TEST_FIXTURES=true to run against local fixture CSVs (no GCS/SAP needed)
+      USE_TEST_FIXTURES: ${USE_TEST_FIXTURES:-true}
+      FIXTURES_DIR: /app/fixtures
+
+      # ── GCS (leave blank until bucket is provisioned) ─────────────────────
+      GCS_BUCKET: ${GCS_BUCKET:-}
+      GCS_CONSUMPTION_PATH: ${GCS_CONSUMPTION_PATH:-}
+      GCS_STOCK_MASTER_PATH: ${GCS_STOCK_MASTER_PATH:-}
+      GCS_PO_HISTORY_PATH: ${GCS_PO_HISTORY_PATH:-}
+      GCS_SHUTDOWN_CALENDAR_PATH: ${GCS_SHUTDOWN_CALENDAR_PATH:-}
+      # G-01: daily stock snapshot for Critical Spares Availability
+      GCS_DAILY_STOCK_SNAPSHOT_PATH: ${GCS_DAILY_STOCK_SNAPSHOT_PATH:-}
+      # G-02: RESB demand-met extract for Fill Rate
+      GCS_RESB_PATH: ${GCS_RESB_PATH:-}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+
+      # ── SAP RFC/BAPI (leave blank until credentials are provided) ─────────
+      SAP_HOST: ${SAP_HOST:-}
+      SAP_SYSNR: ${SAP_SYSNR:-}
+      SAP_CLIENT: ${SAP_CLIENT:-}
+      SAP_USER: ${SAP_USER:-}
+      SAP_PASSWORD: ${SAP_PASSWORD:-}
+
+      # ── ContextFlow MCP (leave blank until endpoint is provided) ──────────
+      CONTEXTFLOW_MCP_ENDPOINT: ${CONTEXTFLOW_MCP_ENDPOINT:-}
+      CONTEXTFLOW_API_KEY: ${CONTEXTFLOW_API_KEY:-}
+      CONTEXTFLOW_TIMEOUT_SECONDS: ${CONTEXTFLOW_TIMEOUT_SECONDS:-60}
+
+      # ── Metrics thresholds (configurable) ────────────────────────────────
+      SMI_USAGE_THRESHOLD_PERCENTILE: ${SMI_USAGE_THRESHOLD_PERCENTILE:-20.0}
+      NMI_LOOKBACK_MONTHS: ${NMI_LOOKBACK_MONTHS:-6}
+      OVERSTOCK_MARGIN_FACTOR: ${OVERSTOCK_MARGIN_FACTOR:-1.25}
+
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    restart: unless-stopped
+
+    # Mount GCP service account key if path is set
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/dev/null}:${GOOGLE_APPLICATION_CREDENTIALS:-/dev/null}:ro
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Future services (uncomment when ready):
+# ─────────────────────────────────────────────────────────────────────────────
+#  redis:
+#    image: redis:7-alpine
+#    container_name: vedanta-redis
+#    ports: ["6379:6379"]
+#
+#  nginx:
+#    image: nginx:alpine
+#    ports: ["80:80", "443:443"]
+#    volumes: ["./nginx.conf:/etc/nginx/nginx.conf:ro"]
+#    depends_on: [app]

@@ -1,0 +1,61 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .dockerignore — Vedanta Inventory Dashboard
+# Keeps the build context lean: excludes dev artefacts, secrets, and test data
+# that must never end up in the image.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Version control ──────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Node / frontend ──────────────────────────────────────────────────────────
+frontend/node_modules
+frontend/.vite
+frontend/dist          # built inside Docker; host copy is stale
+frontend/.env*
+
+# ── Python ───────────────────────────────────────────────────────────────────
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+backend/.venv
+backend/venv
+backend/.env*
+
+# ── Test artefacts ───────────────────────────────────────────────────────────
+backend/tests
+**/test_*.py
+**/*_test.py
+htmlcov
+.coverage
+coverage.xml
+
+# ── Secrets & credentials ────────────────────────────────────────────────────
+.env
+*.env
+*.pem
+*.key
+*service_account*.json
+*credentials*.json
+
+# ── Docs & tooling ───────────────────────────────────────────────────────────
+docs
+*.md
+*.txt
+!backend/requirements.txt   # keep this one — needed by pip install
+
+# ── OS noise ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── CI / IDE ─────────────────────────────────────────────────────────────────
+.github
+.vscode
+.idea

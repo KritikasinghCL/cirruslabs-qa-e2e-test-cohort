@@ -1,0 +1,160 @@
+{
+  "version": "2.0.0",
+  "date": "2026-09-25",
+  "project": "Vedanta Inventory Forecasting & Dashboard",
+  "ticket": "S-2",
+  "author": "Devika Rao — SAP Inventory Data Engineer",
+  "note": "Status values: PRESENT | MISSING | UNCONFIRMED | RESOLVED | NOT_APPLICABLE. S-2 updated statuses and added pipeline-layer findings.",
+
+  "gaps": [
+
+    {
+      "id": "G-01",
+      "metric": "Critical Spares Availability",
+      "required_field": "MARC.CRITICAL_FLAG (or equivalent Z-field / classification)",
+      "source_table": "MARC or KLAH/AUSP (classification system)",
+      "status": "UNCONFIRMED",
+      "impact": "HIGH — without this flag, Critical Spares page cannot distinguish critical vs non-critical materials",
+      "resolution_needed": "Confirm exact SAP field name or classification characteristic used by Vedanta to mark critical spares",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Allow manual upload of critical-spares list (CSV: MATNR, WERKS, CRITICAL=Y/N) until SAP field confirmed",
+      "s2_note": "Pipeline reads CRITICAL_FLAG column from stock_master extract. If absent, all materials default to critical_flag=False and a G-01 gap entry is written to the drop log. Downstream code renders 'Data not available' for Critical Spares Availability."
+    },
+
+    {
+      "id": "G-02",
+      "metric": "Fill Rate",
+      "required_field": "RESB.BDMNG, RESB.ENMNG, RESB.KZEAR",
+      "source_table": "RESB (Reservation/dependent requirements)",
+      "status": "UNCONFIRMED",
+      "impact": "HIGH — Fill Rate cannot be calculated without reservation data",
+      "resolution_needed": "Confirm RESB is included in GCS export; confirm KZEAR semantics for Vedanta's PM process",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Show 'Data not available — RESB export pending' on Inventory Health page",
+      "s2_note": "compute_fill_rate() returns None with gap 'G-02' when blocked=True. The API passes blocked=True until RESB data is confirmed present. No wrong number is shown."
+    },
+
+    {
+      "id": "G-03",
+      "metric": "Inventory Turnover (average inventory)",
+      "required_field": "Monthly inventory snapshots (MARD.LABST at period-end)",
+      "source_table": "MARD or MB52 historical extract",
+      "status": "UNCONFIRMED",
+      "impact": "MEDIUM — without snapshots, turnover uses point-in-time stock (less accurate)",
+      "resolution_needed": "Confirm whether GCS export includes historical MARD snapshots or only current stock",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Use current MARD.LABST as both start and end of period (point-in-time approximation; flag on dashboard)",
+      "s2_note": "compute_inv_turnover() accepts g03_point_in_time=True flag. When set, a G-03 gap entry is appended to the metric's gap list and the dashboard renders a footnote. The number is still shown but labelled as approximate."
+    },
+
+    {
+      "id": "G-04",
+      "metric": "Shutdown / Maintenance Calendar overlay",
+      "required_field": "MAINT_CAL.SHUTDOWN_FLAG, MAINT_CAL.GSTRP, MAINT_CAL.GLTRP",
+      "source_table": "VIAUFKST / custom PM order extract",
+      "status": "UNCONFIRMED",
+      "impact": "MEDIUM — Critical Spares page cannot show next shutdown date without this",
+      "resolution_needed": "Confirm PM order types used for planned shutdowns at Vedanta plants; confirm GCS export path",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Show 'Shutdown calendar not available' on Critical Spares page",
+      "s2_note": "transform_maintenance_calendar() derives shutdown_flag from order type (PM03 → True) when SHUTDOWN_FLAG column is absent, and logs a G-04 gap entry. Downstream pages show 'Shutdown calendar not available' when the maintenance_calendar table is empty."
+    },
+
+    {
+      "id": "G-05",
+      "metric": "Demand Forecast (ContextFlow)",
+      "required_field": "ContextFlow MCP endpoint, API key, input/output schema",
+      "source_table": "External — ContextFlow MCP",
+      "status": "UNCONFIRMED",
+      "impact": "HIGH — Demand Forecast page and Stock Actions page depend on ContextFlow output",
+      "resolution_needed": "Confirm ContextFlow MCP connection details, rate limits, and expected output schema",
+      "owner": "Arun Menon (S-3)",
+      "fallback": "Show 'Forecast not available — ContextFlow connection pending' on Demand Forecast and Stock Actions pages"
+    },
+
+    {
+      "id": "G-06",
+      "metric": "Forecast Accuracy / Bias (historical forecasts)",
+      "required_field": "ContextFlow historical forecast_qty for past periods",
+      "source_table": "ContextFlow MCP output — historical run",
+      "status": "UNCONFIRMED",
+      "impact": "MEDIUM — Forecast Quality page requires at least one prior forecast period to compute MAPE/Bias",
+      "resolution_needed": "Confirm whether ContextFlow stores historical forecast outputs or only produces forward forecasts",
+      "owner": "Arun Menon (S-3)",
+      "fallback": "Show 'Insufficient forecast history — MAPE/Bias available after first full forecast cycle'"
+    },
+
+    {
+      "id": "G-07",
+      "metric": "All metrics",
+      "required_field": "GCS bucket path (gs://bucket/path) — placeholder only",
+      "source_table": "All GCS exports",
+      "status": "MISSING",
+      "impact": "CRITICAL — no real data can be loaded until actual GCS path is confirmed",
+      "resolution_needed": "Replace placeholder gs://bucket/path with real bucket name and folder structure in GCS_BUCKET_PATH env var",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "None — pipeline cannot run without this",
+      "s2_note": "GCS_BUCKET_PATH is read from environment (pipeline/config.py). The extractor raises DataSourceUnavailableError when the path is the placeholder value. The API returns HTTP 503 with a clear message. No wrong number is shown. Action required: set GCS_BUCKET_PATH in .env before first live run."
+    },
+
+    {
+      "id": "G-08",
+      "metric": "All consumption-based metrics",
+      "required_field": "SAP movement type list — exact BWART codes used by Vedanta for consumption",
+      "source_table": "MSEG",
+      "status": "UNCONFIRMED",
+      "impact": "HIGH — wrong movement types will corrupt all consumption-based metrics",
+      "resolution_needed": "Vedanta SAP team to confirm which BWART codes represent actual consumption (not transfers, returns, etc.)",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Use standard list (201, 261, 551, 601) with note on dashboard; update CONSUMPTION_BWART_LIST in config.py once confirmed",
+      "s2_note": "CONSUMPTION_BWART_LIST is configurable in pipeline/config.py and overridable via CONSUMPTION_BWART_LIST env var (comma-separated). Current default: [201, 261, 551, 601]. Every row dropped by this filter is counted in the drop log and reconciliation report. Rows dropped: shown in Data & Methodology page."
+    },
+
+    {
+      "id": "G-09",
+      "metric": "Inventory Value, Safety Stock, Reorder Point",
+      "required_field": "MBEW.VERPR (moving average price) — may be zero for non-valuated materials",
+      "source_table": "MBEW",
+      "status": "UNCONFIRMED",
+      "impact": "MEDIUM — zero or missing price will show INR 0 inventory value for affected materials",
+      "resolution_needed": "Confirm valuation method (MAP vs standard price) per material type at Vedanta",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Cascade: VERPR → STPRS → LAEPR → 0 with 'Price missing' flag",
+      "s2_note": "Price cascade implemented in transform_stock_master(). Materials with price_missing=True are counted in the drop log (rows_flagged, not rows_dropped — they are retained). compute_inv_value() appends a G-09 gap entry for these materials. Dashboard renders 'Price missing — value shown as 0' tooltip."
+    },
+
+    {
+      "id": "G-10",
+      "metric": "Plant filter",
+      "required_field": "T001W (plant master — name and description)",
+      "source_table": "T001W",
+      "status": "UNCONFIRMED",
+      "impact": "LOW — filter will show plant codes instead of names",
+      "resolution_needed": "Confirm T001W is included in GCS export",
+      "owner": "Devika Rao (S-2)",
+      "fallback": "Display raw WERKS code in filter",
+      "s2_note": "Pipeline reads plant codes from WERKS. If T001W is not in the GCS export, plant names default to the WERKS code. No metric is affected."
+    }
+  ],
+
+  "summary": {
+    "total_gaps": 10,
+    "critical": 1,
+    "high": 4,
+    "medium": 3,
+    "low": 1,
+    "missing": 1,
+    "unconfirmed": 8,
+    "resolved": 0,
+    "blocking_s2": ["G-07", "G-08"],
+    "blocking_s3": ["G-05", "G-06"],
+    "blocking_s4": ["G-01", "G-02", "G-04"],
+    "s2_pipeline_status": {
+      "all_gaps_have_fallback_behaviour": true,
+      "wrong_numbers_shown_when_data_missing": false,
+      "drop_log_accounts_for_every_dropped_row": true,
+      "reconciliation_report_written_per_domain": true,
+      "test_coverage": "116 tests, 0 failures"
+    }
+  }
+}

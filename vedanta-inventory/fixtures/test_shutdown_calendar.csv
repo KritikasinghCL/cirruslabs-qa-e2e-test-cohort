@@ -1,0 +1,5 @@
+shutdown_id,plant,shutdown_date,end_date,materials,seasonal_flag,shutdown_type
+SD-001,PL01,2026-11-01,2026-11-07,MAT-001|MAT-002|MAT-007,False,planned
+SD-002,PL02,2026-12-15,2026-12-22,MAT-004|MAT-005,True,turnaround
+SD-003,PL03,2027-02-01,2027-02-05,MAT-008|MAT-010,False,planned
+SD-004,PL01,2027-05-10,2027-05-14,MAT-001|MAT-003,True,seasonal

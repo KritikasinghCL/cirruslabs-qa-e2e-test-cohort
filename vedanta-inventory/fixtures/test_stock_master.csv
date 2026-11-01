@@ -1,0 +1,11 @@
+material_code,plant,current_stock,unit_price,category,material_type,critical_flag,shutdown_flag,description,uom,lead_time_days
+MAT-001,PL01,150.0,4500.00,Bearings,ZSPR,True,False,Bearing 6205 Deep Groove,EA,45
+MAT-002,PL01,0.0,12000.00,Seals,ZSPR,True,True,Oil Seal 80x100x10,EA,60
+MAT-003,PL01,25.0,8750.00,Belts,ZSPN,False,False,V-Belt A-42,EA,30
+MAT-004,PL02,500.0,320.00,Gaskets,ZSPR,False,True,Gasket Ring DN50,EA,21
+MAT-005,PL02,3.0,95000.00,Pumps,ZSPR,True,False,Centrifugal Pump 2 inch,EA,90
+MAT-006,PL02,0.0,2200.00,Filters,ZSPN,False,False,Oil Filter Element,EA,14
+MAT-007,PL01,80.0,1100.00,Fasteners,ZSPN,False,False,Bolt M16x60 GR8.8,EA,7
+MAT-008,PL03,12.0,55000.00,Motors,ZSPR,True,True,Electric Motor 7.5kW,EA,75
+MAT-009,PL03,200.0,180.00,Consumables,ZSPN,False,False,Welding Rod 3.15mm,KG,10
+MAT-010,PL03,0.0,38000.00,Valves,ZSPR,True,False,Gate Valve 3 inch,EA,50

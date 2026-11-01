@@ -1,0 +1,767 @@
+# =============================================================================
+# Vedanta Inventory Forecasting & Dashboard — Data Contract
+# Version : 1.0.0
+# Date    : 2026-09-25
+# Owner   : Mia (Data Strategy Lead, Data Enablement Squad)
+# Ticket  : S-1
+# Status  : DRAFT — pending attachment of Metrics doc & SOW for final sign-off
+# =============================================================================
+#
+# PURPOSE
+# -------
+# Single source of truth for every downstream task (S-2 through S-6).
+# No task may invent a field name, formula, or table reference that is not
+# defined here.  Any deviation requires a contract amendment (version bump).
+#
+# HOW TO READ
+# -----------
+# sources      → SAP tables + GCS paths that feed the pipeline
+# metrics      → every KPI with its exact formula and field dependencies
+# dashboard    → page inventory with required metrics per page
+# gap_register → fields/metrics whose availability is unconfirmed (see gap_register_v1.json)
+# =============================================================================
+
+contract_version: "1.0.0"
+schema_version:   "1"
+project:          "Vedanta Inventory Forecasting & Dashboard"
+last_updated:     "2026-09-25"
+author:           "Mia — Data Enablement Squad"
+
+# ---------------------------------------------------------------------------
+# 1. GCS EXPORT ROOT
+# ---------------------------------------------------------------------------
+gcs:
+  bucket_path:  "gs://bucket/path"          # placeholder — replace with real bucket
+  format:       "Parquet (preferred) | CSV"
+  partitioning: "plant / material_type / year / month"
+  refresh_cadence: "Daily (T-1 by 06:00 IST)"
+
+# ---------------------------------------------------------------------------
+# 2. SAP SOURCE TABLES & FIELDS
+# ---------------------------------------------------------------------------
+sources:
+
+  # ── 2.1 Consumption History ──────────────────────────────────────────────
+  - id:          CONS_HIST
+    sap_table:   MSEG          # Material document segment
+    gcs_path:    "gs://bucket/path/consumption_history/"
+    description: "Line-level goods-issue and goods-receipt movements"
+    primary_key: [MBLNR, ZEILE]   # document number + line
+    fields:
+      - name: MBLNR
+        type: STRING
+        description: "Material document number"
+      - name: ZEILE
+        type: STRING
+        description: "Document line item"
+      - name: BUDAT
+        type: DATE
+        description: "Posting date"
+      - name: MATNR
+        type: STRING
+        description: "Material number"
+      - name: WERKS
+        type: STRING
+        description: "Plant"
+      - name: LGORT
+        type: STRING
+        description: "Storage location"
+      - name: BWART
+        type: STRING
+        description: "Movement type (261=GI to order, 201=GI to cost centre, etc.)"
+      - name: MENGE
+        type: DECIMAL
+        description: "Quantity moved (always positive)"
+      - name: MEINS
+        type: STRING
+        description: "Base unit of measure"
+      - name: DMBTR
+        type: DECIMAL
+        description: "Amount in local currency (INR)"
+      - name: WAERS
+        type: STRING
+        description: "Currency key"
+      - name: KOSTL
+        type: STRING
+        description: "Cost centre"
+      - name: AUFNR
+        type: STRING
+        description: "Order number (maintenance/production)"
+      - name: BWTAR
+        type: STRING
+        description: "Valuation type"
+    filters:
+      - "BWART IN ('201','261','262','551','601') — consumption movements only"
+      - "BUDAT >= SYSDATE - 730 days (2 years rolling)"
+
+  # ── 2.2 Stock / Material Master ─────────────────────────────────────────
+  - id:          STOCK_MASTER
+    sap_tables:  [MARA, MARC, MARD, MBEW]
+    gcs_path:    "gs://bucket/path/stock_master/"
+    description: "Material master attributes, plant stock, and valuation"
+    primary_key: [MATNR, WERKS]
+    fields:
+      # MARA — general material data
+      - name: MATNR
+        type: STRING
+        description: "Material number"
+        source: MARA
+      - name: MAKTX
+        type: STRING
+        description: "Material description"
+        source: MARA
+      - name: MTART
+        type: STRING
+        description: "Material type (ERSA/ROH/HIBE/FERT…)"
+        source: MARA
+      - name: MATKL
+        type: STRING
+        description: "Material group / category"
+        source: MARA
+      - name: MEINS
+        type: STRING
+        description: "Base unit of measure"
+        source: MARA
+      - name: BRGEW
+        type: DECIMAL
+        description: "Gross weight"
+        source: MARA
+      - name: GEWEI
+        type: STRING
+        description: "Weight unit"
+        source: MARA
+      - name: ZEINR
+        type: STRING
+        description: "Drawing number"
+        source: MARA
+      - name: ERSDA
+        type: DATE
+        description: "Creation date"
+        source: MARA
+      # MARC — plant-specific data
+      - name: WERKS
+        type: STRING
+        description: "Plant"
+        source: MARC
+      - name: EKGRP
+        type: STRING
+        description: "Purchasing group"
+        source: MARC
+      - name: DISMM
+        type: STRING
+        description: "MRP type"
+        source: MARC
+      - name: MINBE
+        type: DECIMAL
+        description: "Reorder point (SAP)"
+        source: MARC
+      - name: EISBE
+        type: DECIMAL
+        description: "Safety stock (SAP)"
+        source: MARC
+      - name: MABST
+        type: DECIMAL
+        description: "Maximum stock level"
+        source: MARC
+      - name: WEBAZ
+        type: INTEGER
+        description: "Goods receipt processing time (days)"
+        source: MARC
+      - name: PLIFZ
+        type: INTEGER
+        description: "Planned delivery time (days)"
+        source: MARC
+      - name: LGPRO
+        type: STRING
+        description: "Production storage location"
+        source: MARC
+      - name: CRITICAL_FLAG
+        type: STRING
+        description: "Critical spare flag (custom Z-field or classification)"
+        source: MARC
+      # MARD — storage location stock
+      - name: LGORT
+        type: STRING
+        description: "Storage location"
+        source: MARD
+      - name: LABST
+        type: DECIMAL
+        description: "Unrestricted stock (qty)"
+        source: MARD
+      - name: EINME
+        type: DECIMAL
+        description: "Stock in transit"
+        source: MARD
+      - name: INSME
+        type: DECIMAL
+        description: "Stock in quality inspection"
+        source: MARD
+      - name: RETME
+        type: DECIMAL
+        description: "Blocked stock"
+        source: MARD
+      # MBEW — material valuation
+      - name: BWKEY
+        type: STRING
+        description: "Valuation area (= plant)"
+        source: MBEW
+      - name: STPRS
+        type: DECIMAL
+        description: "Standard price (INR/UoM)"
+        source: MBEW
+      - name: VERPR
+        type: DECIMAL
+        description: "Moving average price (INR/UoM)"
+        source: MBEW
+      - name: LAEPR
+        type: DECIMAL
+        description: "Last purchase price"
+        source: MBEW
+      - name: BKLAS
+        type: STRING
+        description: "Valuation class"
+        source: MBEW
+
+  # ── 2.3 Purchase Order History ──────────────────────────────────────────
+  - id:          PO_HIST
+    sap_tables:  [EKKO, EKPO, EKET, EKBE]
+    gcs_path:    "gs://bucket/path/po_history/"
+    description: "Purchase order headers, line items, schedule lines, and GR history"
+    primary_key: [EBELN, EBELP]
+    fields:
+      # EKKO — PO header
+      - name: EBELN
+        type: STRING
+        description: "Purchase order number"
+        source: EKKO
+      - name: BSART
+        type: STRING
+        description: "PO document type"
+        source: EKKO
+      - name: LIFNR
+        type: STRING
+        description: "Vendor number"
+        source: EKKO
+      - name: BEDAT
+        type: DATE
+        description: "PO creation date"
+        source: EKKO
+      - name: WAERS
+        type: STRING
+        description: "Currency"
+        source: EKKO
+      # EKPO — PO line item
+      - name: EBELP
+        type: STRING
+        description: "PO line item"
+        source: EKPO
+      - name: MATNR
+        type: STRING
+        description: "Material number"
+        source: EKPO
+      - name: WERKS
+        type: STRING
+        description: "Plant"
+        source: EKPO
+      - name: MENGE
+        type: DECIMAL
+        description: "PO quantity"
+        source: EKPO
+      - name: MEINS
+        type: STRING
+        description: "UoM"
+        source: EKPO
+      - name: NETPR
+        type: DECIMAL
+        description: "Net price (INR)"
+        source: EKPO
+      - name: EINDT
+        type: DATE
+        description: "Delivery date (schedule)"
+        source: EKPO
+      - name: ELIKZ
+        type: STRING
+        description: "Delivery completed flag"
+        source: EKPO
+      - name: REPOS
+        type: STRING
+        description: "Invoice receipt indicator"
+        source: EKPO
+      # EKET — schedule lines
+      - name: EINDT_SCH
+        type: DATE
+        description: "Scheduled delivery date"
+        source: EKET
+      - name: MENGE_SCH
+        type: DECIMAL
+        description: "Scheduled quantity"
+        source: EKET
+      # EKBE — PO history (GR/IR events)
+      - name: VGABE
+        type: STRING
+        description: "Transaction type (1=GR, 2=IR)"
+        source: EKBE
+      - name: BUDAT_GR
+        type: DATE
+        description: "GR posting date"
+        source: EKBE
+      - name: MENGE_GR
+        type: DECIMAL
+        description: "GR quantity"
+        source: EKBE
+      - name: DMBTR_GR
+        type: DECIMAL
+        description: "GR value (INR)"
+        source: EKBE
+
+  # ── 2.4 Shutdown / Maintenance Calendar ─────────────────────────────────
+  - id:          MAINT_CAL
+    sap_tables:  [IFLOT, ILOA, VIQMEL, VIAUFKST]   # PM objects + notifications + orders
+    gcs_path:    "gs://bucket/path/maintenance_calendar/"
+    description: "Planned shutdowns, maintenance orders, and equipment hierarchy"
+    primary_key: [AUFNR]
+    fields:
+      - name: AUFNR
+        type: STRING
+        description: "Maintenance order number"
+      - name: AUART
+        type: STRING
+        description: "Order type (PM01/PM02/PM03)"
+      - name: EQUNR
+        type: STRING
+        description: "Equipment number"
+      - name: TPLNR
+        type: STRING
+        description: "Functional location"
+      - name: WERKS
+        type: STRING
+        description: "Plant"
+      - name: GSTRP
+        type: DATE
+        description: "Scheduled start date"
+      - name: GLTRP
+        type: DATE
+        description: "Scheduled finish date"
+      - name: ISTAT
+        type: STRING
+        description: "System status (REL/TECO/CLSD)"
+      - name: SHUTDOWN_FLAG
+        type: STRING
+        description: "Planned shutdown indicator (custom or derived from order type)"
+      - name: RESB_MATNR
+        type: STRING
+        description: "Reserved material (from RESB)"
+      - name: RESB_BDMNG
+        type: DECIMAL
+        description: "Required quantity (from RESB)"
+
+# ---------------------------------------------------------------------------
+# 3. METRIC DEFINITIONS
+# ---------------------------------------------------------------------------
+# Formula notation
+#   AVG_DAILY_CONS  = SUM(consumption qty, last N days) / N
+#   STOCK_ON_HAND   = MARD.LABST  (unrestricted stock, plant level)
+#   UNIT_VALUE      = MBEW.VERPR  (moving avg price; fallback: MBEW.STPRS)
+#   LEAD_TIME_DAYS  = MARC.PLIFZ + MARC.WEBAZ
+#   REVIEW_PERIOD   = configurable (default 30 days)
+# ---------------------------------------------------------------------------
+
+metrics:
+
+  # ── 3.1 Days of Inventory (DOI) ─────────────────────────────────────────
+  - id:            DOI
+    name:          "Days of Inventory"
+    unit:          "days"
+    page:          [Executive Summary, Inventory Health]
+    formula: |
+      DOI = STOCK_ON_HAND / AVG_DAILY_CONS_90D
+      where:
+        STOCK_ON_HAND   = SUM(MARD.LABST) per (MATNR, WERKS)
+        AVG_DAILY_CONS_90D = SUM(MSEG.MENGE WHERE BUDAT >= TODAY-90
+                                  AND BWART IN consumption_types) / 90
+      If AVG_DAILY_CONS_90D = 0 → DOI = NULL (show "No consumption")
+    source_fields:
+      - MARD.LABST
+      - MSEG.MENGE
+      - MSEG.BUDAT
+      - MSEG.BWART
+      - MSEG.MATNR
+      - MSEG.WERKS
+
+  # ── 3.2 Inventory Value ─────────────────────────────────────────────────
+  - id:            INV_VALUE
+    name:          "Inventory Value"
+    unit:          "INR"
+    page:          [Executive Summary, Inventory Health]
+    formula: |
+      INV_VALUE = SUM(MARD.LABST * COALESCE(MBEW.VERPR, MBEW.STPRS))
+                  per (WERKS, MATKL)
+    source_fields:
+      - MARD.LABST
+      - MBEW.VERPR
+      - MBEW.STPRS
+      - MARA.MATKL
+      - MARC.WERKS
+
+  # ── 3.3 Inventory Turnover ──────────────────────────────────────────────
+  - id:            INV_TURNOVER
+    name:          "Inventory Turnover"
+    unit:          "turns/year"
+    page:          [Inventory Health]
+    formula: |
+      INV_TURNOVER = COGS_ANNUAL / AVG_INV_VALUE
+      where:
+        COGS_ANNUAL   = SUM(MSEG.DMBTR WHERE BUDAT IN last 365 days
+                             AND BWART IN consumption_types)
+        AVG_INV_VALUE = (INV_VALUE_START_PERIOD + INV_VALUE_END_PERIOD) / 2
+                        (use monthly snapshots if available; else point-in-time)
+    source_fields:
+      - MSEG.DMBTR
+      - MSEG.BUDAT
+      - MSEG.BWART
+      - MARD.LABST
+      - MBEW.VERPR
+      - MBEW.STPRS
+
+  # ── 3.4 Safety Stock ────────────────────────────────────────────────────
+  - id:            SAFETY_STOCK
+    name:          "Safety Stock"
+    unit:          "qty (UoM)"
+    page:          [Inventory Health, Stock Actions]
+    formula: |
+      SAFETY_STOCK = Z_score(service_level) * STDDEV_DAILY_CONS * SQRT(LEAD_TIME_DAYS)
+      where:
+        service_level    = 95% default (Z = 1.645); configurable per material class
+        STDDEV_DAILY_CONS = STDDEV of daily consumption over last 90 days
+        LEAD_TIME_DAYS   = MARC.PLIFZ + MARC.WEBAZ
+      Fallback: use MARC.EISBE (SAP-maintained safety stock) if formula inputs missing
+    source_fields:
+      - MSEG.MENGE
+      - MSEG.BUDAT
+      - MARC.PLIFZ
+      - MARC.WEBAZ
+      - MARC.EISBE
+
+  # ── 3.5 Reorder Point ───────────────────────────────────────────────────
+  - id:            REORDER_POINT
+    name:          "Reorder Point"
+    unit:          "qty (UoM)"
+    page:          [Inventory Health, Stock Actions]
+    formula: |
+      REORDER_POINT = (AVG_DAILY_CONS_90D * LEAD_TIME_DAYS) + SAFETY_STOCK
+      Fallback: use MARC.MINBE (SAP-maintained reorder point) if formula inputs missing
+    source_fields:
+      - MSEG.MENGE
+      - MSEG.BUDAT
+      - MARC.PLIFZ
+      - MARC.WEBAZ
+      - MARC.EISBE
+      - MARC.MINBE
+
+  # ── 3.6 Overstock Flag ──────────────────────────────────────────────────
+  - id:            OVERSTOCK_FLAG
+    name:          "Overstock Flag"
+    unit:          "boolean"
+    page:          [Executive Summary, Inventory Health, Stock Actions]
+    formula: |
+      OVERSTOCK_FLAG = TRUE
+        IF STOCK_ON_HAND > (AVG_DAILY_CONS_90D * OVERSTOCK_THRESHOLD_DAYS)
+        where OVERSTOCK_THRESHOLD_DAYS = 180 (configurable)
+      Count of overstocked materials shown on Executive Summary
+    source_fields:
+      - MARD.LABST
+      - MSEG.MENGE
+      - MSEG.BUDAT
+
+  # ── 3.7 Understock Flag ─────────────────────────────────────────────────
+  - id:            UNDERSTOCK_FLAG
+    name:          "Understock Flag"
+    unit:          "boolean"
+    page:          [Executive Summary, Inventory Health, Stock Actions]
+    formula: |
+      UNDERSTOCK_FLAG = TRUE
+        IF STOCK_ON_HAND < REORDER_POINT
+      Count of understocked materials shown on Executive Summary
+    source_fields:
+      - MARD.LABST
+      - MARC.MINBE
+      - REORDER_POINT   # derived metric
+
+  # ── 3.8 Non-Moving Stock ────────────────────────────────────────────────
+  - id:            NON_MOVING
+    name:          "Non-Moving Stock"
+    unit:          "boolean + INR value"
+    page:          [Executive Summary, Slow & Non-Moving Inventory]
+    formula: |
+      NON_MOVING = TRUE
+        IF no consumption movement (BWART IN consumption_types) in last 365 days
+           AND STOCK_ON_HAND > 0
+      NON_MOVING_VALUE = STOCK_ON_HAND * UNIT_VALUE  (for flagged materials)
+    source_fields:
+      - MSEG.MENGE
+      - MSEG.BUDAT
+      - MSEG.BWART
+      - MARD.LABST
+      - MBEW.VERPR
+      - MBEW.STPRS
+
+  # ── 3.9 Slow-Moving Stock ───────────────────────────────────────────────
+  - id:            SLOW_MOVING
+    name:          "Slow-Moving Stock"
+    unit:          "boolean + INR value"
+    page:          [Slow & Non-Moving Inventory]
+    formula: |
+      SLOW_MOVING = TRUE
+        IF DOI > SLOW_MOVING_THRESHOLD_DAYS (default 90)
+           AND NOT NON_MOVING
+      SLOW_MOVING_VALUE = STOCK_ON_HAND * UNIT_VALUE
+    source_fields:
+      - DOI            # derived
+      - MARD.LABST
+      - MBEW.VERPR
+      - MBEW.STPRS
+
+  # ── 3.10 Fill Rate ──────────────────────────────────────────────────────
+  - id:            FILL_RATE
+    name:          "Fill Rate"
+    unit:          "%"
+    page:          [Inventory Health]
+    formula: |
+      FILL_RATE = (TOTAL_DEMAND_FULFILLED / TOTAL_DEMAND_REQUESTED) * 100
+      where:
+        TOTAL_DEMAND_REQUESTED = count of reservation lines (RESB) or
+                                 goods-issue requests in period
+        TOTAL_DEMAND_FULFILLED = count of lines where RESB.KZEAR = '' (not short)
+                                 or GI was posted without backorder
+      NOTE: Requires RESB table (reservations) — flagged in gap register
+    source_fields:
+      - RESB.BDMNG     # required quantity
+      - RESB.ENMNG     # withdrawn quantity
+      - RESB.KZEAR     # final issue indicator
+      - MSEG.BWART
+      - MSEG.MATNR
+
+  # ── 3.11 Critical Spares Availability ───────────────────────────────────
+  - id:            CRITICAL_AVAIL
+    name:          "Critical Spares Availability"
+    unit:          "%"
+    page:          [Executive Summary (implied), Critical Spares]
+    formula: |
+      CRITICAL_AVAIL = (COUNT of critical materials WHERE STOCK_ON_HAND > 0
+                        / COUNT of all critical materials) * 100
+      Critical = MARC.CRITICAL_FLAG = 'X'  OR  material class = 'CRIT'
+                 (exact flag field to be confirmed with SAP team — see gap register)
+    source_fields:
+      - MARC.CRITICAL_FLAG   # Z-field — gap flagged
+      - MARD.LABST
+      - MARA.MATKL
+
+  # ── 3.12 Demand Forecast ────────────────────────────────────────────────
+  - id:            DEMAND_FORECAST
+    name:          "Demand Forecast (ContextFlow)"
+    unit:          "qty / period"
+    page:          [Demand Forecast, Stock Actions]
+    formula: |
+      Produced by ContextFlow via MCP — NOT calculated internally.
+      Inputs passed to ContextFlow:
+        - consumption_history: MSEG rows (MATNR, WERKS, BUDAT, MENGE, BWART)
+        - material_master:     MARA/MARC attributes
+        - maintenance_calendar: planned shutdown dates (MAINT_CAL)
+        - horizon:             configurable (default 90 days)
+        - granularity:         daily → aggregated to weekly/monthly for display
+      Output fields expected from ContextFlow:
+        - forecast_date
+        - material_number
+        - plant
+        - forecast_qty
+        - lower_bound_80
+        - upper_bound_80
+        - lower_bound_95
+        - upper_bound_95
+        - model_version
+    source_fields:
+      - MSEG.MATNR
+      - MSEG.WERKS
+      - MSEG.BUDAT
+      - MSEG.MENGE
+      - MSEG.BWART
+      - MARA.MTART
+      - MARA.MATKL
+      - MARC.PLIFZ
+      - MAINT_CAL.GSTRP
+      - MAINT_CAL.GLTRP
+      - MAINT_CAL.SHUTDOWN_FLAG
+
+  # ── 3.13 Forecast Accuracy (MAPE) ───────────────────────────────────────
+  - id:            FORECAST_ACCURACY
+    name:          "Forecast Accuracy (MAPE)"
+    unit:          "%"
+    page:          [Executive Summary, Forecast Quality]
+    formula: |
+      MAPE = (1/n) * SUM( |ACTUAL_t - FORECAST_t| / ACTUAL_t ) * 100
+      where:
+        ACTUAL_t   = SUM(MSEG.MENGE) for period t (actuals from CONS_HIST)
+        FORECAST_t = ContextFlow forecast_qty for same material/plant/period t
+        n          = number of periods with ACTUAL_t > 0
+      Accuracy displayed as: 100 - MAPE  (higher = better)
+    source_fields:
+      - MSEG.MENGE
+      - MSEG.BUDAT
+      - MSEG.MATNR
+      - MSEG.WERKS
+      - DEMAND_FORECAST.forecast_qty   # ContextFlow output
+
+  # ── 3.14 Forecast Bias ──────────────────────────────────────────────────
+  - id:            FORECAST_BIAS
+    name:          "Forecast Bias"
+    unit:          "%"
+    page:          [Forecast Quality]
+    formula: |
+      BIAS = SUM(FORECAST_t - ACTUAL_t) / SUM(ACTUAL_t) * 100
+      Positive bias → systematic over-forecast
+      Negative bias → systematic under-forecast
+    source_fields:
+      - MSEG.MENGE
+      - MSEG.BUDAT
+      - MSEG.MATNR
+      - MSEG.WERKS
+      - DEMAND_FORECAST.forecast_qty
+
+
+# ---------------------------------------------------------------------------
+# 4. DASHBOARD PAGE INVENTORY
+# ---------------------------------------------------------------------------
+dashboard_pages:
+
+  - id:    P1
+    name:  "Executive Summary"
+    headline_kpis:
+      - FORECAST_ACCURACY   # headline 1
+      - DOI                 # headline 2 (paired with INV_VALUE)
+      - INV_VALUE           # headline 2
+      - OVERSTOCK_FLAG      # headline 3 (count)
+      - UNDERSTOCK_FLAG     # headline 3 (count)
+      - NON_MOVING          # headline 3 (count)
+    filters: [plant, category, material_type, period]
+
+  - id:    P2
+    name:  "Inventory Health"
+    metrics: [DOI, INV_VALUE, INV_TURNOVER, SAFETY_STOCK, REORDER_POINT,
+              OVERSTOCK_FLAG, UNDERSTOCK_FLAG, FILL_RATE]
+    filters: [plant, category, material_type, period]
+    table:   sortable, searchable, CSV+Excel export
+
+  - id:    P3
+    name:  "Demand Forecast"
+    metrics: [DEMAND_FORECAST]
+    features: [forecast chart with confidence bands, horizon selector,
+               comparison vs actuals, material/plant selector]
+    filters: [plant, category, material_type, period]
+    table:   sortable, searchable, CSV+Excel export
+
+  - id:    P4
+    name:  "Stock Actions"
+    metrics: [OVERSTOCK_FLAG, UNDERSTOCK_FLAG, REORDER_POINT, SAFETY_STOCK,
+              DEMAND_FORECAST]
+    features: [recommended action column (order/hold/liquidate),
+               priority ranking]
+    filters: [plant, category, material_type, period]
+    table:   sortable, searchable, CSV+Excel export
+
+  - id:    P5
+    name:  "Critical Spares"
+    metrics: [CRITICAL_AVAIL, DOI, REORDER_POINT, SAFETY_STOCK]
+    features: [criticality flag, maintenance calendar overlay,
+               next shutdown date]
+    filters: [plant, category, period]
+    table:   sortable, searchable, CSV+Excel export
+
+  - id:    P6
+    name:  "Slow & Non-Moving Inventory"
+    metrics: [NON_MOVING, SLOW_MOVING, INV_VALUE]
+    features: [last movement date, ageing buckets (90/180/365+ days),
+               INR value at risk]
+    filters: [plant, category, material_type, period]
+    table:   sortable, searchable, CSV+Excel export
+
+  - id:    P7
+    name:  "Forecast Quality"
+    metrics: [FORECAST_ACCURACY, FORECAST_BIAS]
+    features: [MAPE trend chart, bias trend chart, material-level breakdown,
+               period-over-period comparison]
+    filters: [plant, category, material_type, period]
+    table:   sortable, searchable, CSV+Excel export
+
+  - id:    P8
+    name:  "Data & Methodology"
+    content:
+      - data_contract_version: "1.0.0"
+      - source_table_list
+      - metric_formula_reference
+      - gap_register_link
+      - refresh_schedule
+      - contextflow_model_version_display
+      - data_quality_flags
+
+# ---------------------------------------------------------------------------
+# 5. GLOBAL FILTER DIMENSIONS
+# ---------------------------------------------------------------------------
+filters:
+  plant:
+    source: MARC.WERKS
+    display: plant name from T001W
+  category:
+    source: MARA.MATKL
+    display: material group description from T023T
+  material_type:
+    source: MARA.MTART
+    display: material type description from T134T
+  period:
+    type: date-range
+    default: "last 90 days"
+    options: [last_30d, last_90d, last_180d, last_365d, custom]
+
+# ---------------------------------------------------------------------------
+# 6. CONSUMPTION MOVEMENT TYPE REFERENCE
+# ---------------------------------------------------------------------------
+consumption_movement_types:
+  - bwart: "201"
+    description: "GI to cost centre"
+  - bwart: "261"
+    description: "GI to production order"
+  - bwart: "262"
+    description: "GI reversal (subtract from consumption)"
+  - bwart: "551"
+    description: "GI for scrapping"
+  - bwart: "601"
+    description: "GI for delivery (sales)"
+  - bwart: "641"
+    description: "GI for stock transfer"
+note: "Confirm exact list with Vedanta SAP team — movements 262 are reversals and must be netted"
+
+# ---------------------------------------------------------------------------
+# 7. CONFIGURATION PARAMETERS (tunable without code change)
+# ---------------------------------------------------------------------------
+config_params:
+  - param: OVERSTOCK_THRESHOLD_DAYS
+    default: 180
+    unit: days
+  - param: SLOW_MOVING_THRESHOLD_DAYS
+    default: 90
+    unit: days
+  - param: NON_MOVING_LOOKBACK_DAYS
+    default: 365
+    unit: days
+  - param: SAFETY_STOCK_SERVICE_LEVEL
+    default: 0.95
+    unit: probability
+  - param: CONSUMPTION_LOOKBACK_DAYS
+    default: 90
+    unit: days
+  - param: FORECAST_HORIZON_DAYS
+    default: 90
+    unit: days
+  - param: FORECAST_GRANULARITY
+    default: weekly
+    unit: string
+

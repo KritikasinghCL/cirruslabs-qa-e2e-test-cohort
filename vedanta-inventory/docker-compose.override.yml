@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# docker-compose.override.yml — LOCAL DEVELOPMENT ONLY
+#
+# This file is automatically merged by `docker-compose up` when present.
+# It is NOT committed to production CI pipelines.
+# It adds:
+#   • Live-reload of backend source (bind-mount)
+#   • Debug logging
+#   • Fixture mode forced on
+#   • Longer healthcheck start-period for slow machines
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+  app:
+    # Override image tag so local dev builds don't clobber the :latest tag
+    image: vedanta-inventory:dev
+
+    environment:
+      ENV: development
+      USE_TEST_FIXTURES: "true"
+      LOG_LEVEL: debug
+
+    # Bind-mount backend source for live reload (uvicorn --reload)
+    volumes:
+      - ./backend:/app:rw
+      - ./fixtures:/app/fixtures:ro
+      # GCP service account key (optional — only needed for live GCS)
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/dev/null}:${GOOGLE_APPLICATION_CREDENTIALS:-/dev/null}:ro
+
+    # Override CMD to enable uvicorn hot-reload
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8080"
+      - --reload
+      - --log-level
+      - debug
+
+    healthcheck:
+      start_period: 90s   # slower on first run while pip layers warm up
