@@ -1,0 +1,13 @@
+# Vedanta Inventory Forecasting & Dashboard — Python dependencies
+#
+# Pinned with compatible-release ranges so CI is reproducible but patch
+# updates still flow. Install with:  pip install -r requirements.txt
+
+# --- Runtime: data layer ---------------------------------------------------
+pandas>=2.1,<3.0            # dataframes for every dataset the loader returns
+jsonschema>=4.19,<5.0       # contract validation of incoming rows
+
+# --- Test / lint / type toolchain (also run in CI) -------------------------
+pytest>=7.4,<9.3
+flake8>=6.0,<8.0
+mypy>=1.5,<2.0

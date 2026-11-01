@@ -1,0 +1,20 @@
+{
+  "_fixture_warning": "TEST DATA — NOT FOR PRODUCTION",
+  "rows": [
+    {"shutdown_id": "SD-ZAM1-2026-01", "plant": "VED-ZAM-001", "shutdown_type": "PLANNED", "start_date": "2026-03-01", "end_date": "2026-03-07", "duration_days": 6, "affected_equipment": "EQ-MILL-01", "maintenance_order": "800000301"},
+    {"shutdown_id": "SD-ZAM1-2026-02", "plant": "VED-ZAM-001", "shutdown_type": "STATUTORY", "start_date": "2026-06-15", "end_date": "2026-06-18", "duration_days": 3, "affected_equipment": "EQ-BOILER-02", "maintenance_order": "800000302"},
+    {"shutdown_id": "SD-ZAM1-2026-03", "plant": "VED-ZAM-001", "shutdown_type": "TURNAROUND", "start_date": "2026-09-01", "end_date": "2026-09-14", "duration_days": 13, "affected_equipment": "EQ-SMELT-01", "maintenance_order": "800000303"},
+    {"shutdown_id": "SD-ZAM2-2026-01", "plant": "VED-ZAM-002", "shutdown_type": "PLANNED", "start_date": "2026-02-10", "end_date": "2026-02-13", "duration_days": 3, "affected_equipment": "EQ-CRUSH-01", "maintenance_order": "800000311"},
+    {"shutdown_id": "SD-ZAM2-2026-02", "plant": "VED-ZAM-002", "shutdown_type": "UNPLANNED", "start_date": "2026-04-22", "end_date": "2026-04-24", "duration_days": 2, "affected_equipment": "EQ-CONV-05", "maintenance_order": "800000312"},
+    {"shutdown_id": "SD-ZAM2-2026-03", "plant": "VED-ZAM-002", "shutdown_type": "PLANNED", "start_date": "2026-07-05", "end_date": "2026-07-09", "duration_days": 4, "affected_equipment": "EQ-MILL-03", "maintenance_order": "800000313"},
+    {"shutdown_id": "SD-RSA1-2026-01", "plant": "VED-RSA-001", "shutdown_type": "PLANNED", "start_date": "2026-03-18", "end_date": "2026-03-22", "duration_days": 4, "affected_equipment": "EQ-THICK-01", "maintenance_order": "800000321"},
+    {"shutdown_id": "SD-RSA1-2026-02", "plant": "VED-RSA-001", "shutdown_type": "STATUTORY", "start_date": "2026-05-25", "end_date": "2026-05-29", "duration_days": 4, "affected_equipment": "EQ-LEACH-02", "maintenance_order": "800000322"},
+    {"shutdown_id": "SD-RSA1-2026-03", "plant": "VED-RSA-001", "shutdown_type": "TURNAROUND", "start_date": "2026-08-10", "end_date": "2026-08-24", "duration_days": 14, "affected_equipment": "EQ-SX-01", "maintenance_order": "800000323"},
+    {"shutdown_id": "SD-ZAM1-2026-04", "plant": "VED-ZAM-001", "shutdown_type": "UNPLANNED", "start_date": "2026-04-19", "end_date": "2026-04-20", "duration_days": 1, "affected_equipment": "EQ-PUMP-07", "maintenance_order": "800000304"},
+    {"shutdown_id": "SD-ZAM2-2026-04", "plant": "VED-ZAM-002", "shutdown_type": "STATUTORY", "start_date": "2026-09-05", "end_date": "2026-09-08", "duration_days": 3, "affected_equipment": "EQ-BOILER-03", "maintenance_order": "800000314"},
+    {"shutdown_id": "SD-RSA1-2026-04", "plant": "VED-RSA-001", "shutdown_type": "PLANNED", "start_date": "2026-10-01", "end_date": "2026-10-04", "duration_days": 3, "affected_equipment": "EQ-THICK-02", "maintenance_order": "800000324"},
+    {"shutdown_id": "SD-ZAM1-2026-05", "plant": "VED-ZAM-001", "shutdown_type": "PLANNED", "start_date": "2026-11-10", "end_date": "2026-11-15", "duration_days": 5, "affected_equipment": "EQ-MILL-01", "maintenance_order": "800000305"},
+    {"shutdown_id": "SD-ZAM2-2026-05", "plant": "VED-ZAM-002", "shutdown_type": "TURNAROUND", "start_date": "2026-12-01", "end_date": "2026-12-12", "duration_days": 11, "affected_equipment": "EQ-SMELT-02", "maintenance_order": "800000315"},
+    {"shutdown_id": "SD-RSA1-2026-05", "plant": "VED-RSA-001", "shutdown_type": "UNPLANNED", "start_date": "2026-06-30", "end_date": "2026-07-01", "duration_days": 1, "affected_equipment": "EQ-PUMP-11", "maintenance_order": "800000325"}
+  ]
+}

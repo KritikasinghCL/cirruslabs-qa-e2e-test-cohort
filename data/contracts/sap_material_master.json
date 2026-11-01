@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sap_material_master.json",
+  "title": "SAP Material Master",
+  "description": "Material master data extracted from SAP MARA (client level) and MARC (plant level). One row per material/plant combination.",
+  "type": "object",
+  "properties": {
+    "material_number": {
+      "type": "string",
+      "description": "MARA-MATNR. SAP material number.",
+      "minLength": 1
+    },
+    "plant": {
+      "type": "string",
+      "description": "MARC-WERKS. Plant code, e.g. VED-ZAM-001.",
+      "minLength": 1
+    },
+    "material_description": {
+      "type": ["string", "null"],
+      "description": "MAKT-MAKTX. Material short text description."
+    },
+    "material_type": {
+      "type": "string",
+      "description": "MARA-MTART. SAP material type. Programme scope is stores and spares; fixtures use SPARE, CONSUMABLE, RAW_MAT.",
+      "minLength": 1
+    },
+    "material_group": {
+      "type": ["string", "null"],
+      "description": "MARA-MATKL. Material group."
+    },
+    "base_unit": {
+      "type": "string",
+      "description": "MARA-MEINS. Base unit of measure.",
+      "minLength": 1
+    },
+    "reorder_point": {
+      "type": ["number", "null"],
+      "description": "MARC-MINBE. Reorder point quantity. May be null when not maintained."
+    },
+    "safety_stock": {
+      "type": ["number", "null"],
+      "description": "MARC-EISBE. Safety stock quantity. May be null when not maintained."
+    },
+    "lead_time_days": {
+      "type": ["integer", "null"],
+      "description": "MARC-PLIFZ planned delivery time in days. May be null when not maintained."
+    },
+    "abc_indicator": {
+      "type": ["string", "null"],
+      "description": "MARC-MAABC. ABC indicator (A, B, C)."
+    },
+    "criticality_flag": {
+      "type": ["string", "null"],
+      "description": "Criticality classification (e.g. VITAL, INSURANCE, ESSENTIAL, DESIRABLE). Sourced from a Z-field or classification characteristic."
+    },
+    "valuation_price": {
+      "type": ["number", "null"],
+      "description": "MBEW-VERPR / MBEW-STPRS. Moving average or standard price per base unit."
+    },
+    "currency": {
+      "type": ["string", "null"],
+      "description": "Currency key of the valuation price, e.g. USD, INR, ZAR."
+    }
+  },
+  "required": [
+    "material_number",
+    "plant",
+    "material_type",
+    "base_unit"
+  ],
+  "additionalProperties": true
+}
