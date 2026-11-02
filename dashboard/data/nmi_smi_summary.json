@@ -1,0 +1,11 @@
+{
+  "as_of_date": "2025-12-31",
+  "total_items": 34717,
+  "currency": "INR",
+  "flags": [
+    {"flag": "Active", "label": "Normal / Active", "count": 18723, "percentage": 53.93, "value": 2568282497.98, "semantic": "success"},
+    {"flag": "Slow Moving", "label": "Slow-Moving (SMI)", "count": 9196, "percentage": 26.49, "value": 1743360629.38, "semantic": "warning"},
+    {"flag": "Obsolete", "label": "Obsolete", "count": 3864, "percentage": 11.13, "value": 461030352.64, "semantic": "danger"},
+    {"flag": "Non-Moving", "label": "Non-Moving (NMI)", "count": 2934, "percentage": 8.45, "value": 352549466.78, "semantic": "info"}
+  ]
+}
