@@ -1,0 +1,13 @@
+{
+  "as_of_date": "2025-12-31",
+  "currency": "INR",
+  "total_value": 5125222946.78,
+  "plants": [
+    {"plant_id": "HZL_DEMO_05", "plant_name": "Demo Plant 05", "value": 1079888374.64},
+    {"plant_id": "HZL_DEMO_04", "plant_name": "Demo Plant 04", "value": 885585534.76},
+    {"plant_id": "HZL_DEMO_01", "plant_name": "Demo Plant 01", "value": 883321587.37},
+    {"plant_id": "HZL_DEMO_02", "plant_name": "Demo Plant 02", "value": 826193800.37},
+    {"plant_id": "HZL_DEMO_03", "plant_name": "Demo Plant 03", "value": 744886428.68},
+    {"plant_id": "HZL_DEMO_06", "plant_name": "Demo Plant 06", "value": 705347220.96}
+  ]
+}
