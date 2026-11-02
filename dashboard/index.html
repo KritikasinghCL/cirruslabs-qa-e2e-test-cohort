@@ -28,7 +28,7 @@
     [data-theme="light"] {
       --surface-page: #F8FAFC; --surface-primary: #FFFFFF; --surface-elevated: #FFFFFF;
       --border-default: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
-      --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8; --text-inverse: #FFFFFF;
+      --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #64748B; --text-inverse: #FFFFFF;
       --accent: #2563EB; --accent-hover: #1D4ED8; --accent-subtle: #EFF6FF;
       --success-fg: #16A34A; --success-bg: #F0FDF4;
       --warning-fg: #D97706; --warning-bg: #FFFBEB;
@@ -42,7 +42,7 @@
     [data-theme="dark"] {
       --surface-page: #0F172A; --surface-primary: #1E293B; --surface-elevated: #334155;
       --border-default: rgba(248,250,252,0.08); --border-strong: rgba(248,250,252,0.15);
-      --text-primary: #F8FAFC; --text-secondary: #CBD5E1; --text-muted: #64748B; --text-inverse: #0F172A;
+      --text-primary: #F8FAFC; --text-secondary: #CBD5E1; --text-muted: #94A3B8; --text-inverse: #0F172A;
       --accent: #3B82F6; --accent-hover: #60A5FA; --accent-subtle: rgba(59,130,246,0.1);
       --success-fg: #4ADE80; --success-bg: rgba(74,222,128,0.1);
       --warning-fg: #FBBF24; --warning-bg: rgba(251,191,36,0.1);
@@ -71,40 +71,18 @@
     .section { margin-bottom: var(--sp-8); }
     .section-title { font-size: 20px; font-weight: 600; line-height: 1.3; color: var(--text-primary); margin-bottom: var(--sp-4); }
     .section-caption { font-size: 12px; color: var(--text-muted); margin-top: calc(-1 * var(--sp-2)); margin-bottom: var(--sp-4); }
-
-    /* Theme toggle */
-    .theme-toggle {
-      display: flex; align-items: center; gap: var(--sp-2);
-      background: var(--surface-primary); border: 1px solid var(--border-default);
-      border-radius: var(--radius-md); padding: var(--sp-1) var(--sp-2);
-      cursor: pointer; height: 36px; font-family: var(--font-sans);
-      font-size: 13px; font-weight: 500; color: var(--text-secondary);
-      transition: border-color var(--duration-fast) var(--easing), background var(--duration-fast) var(--easing);
-    }
+    .theme-toggle { display: flex; align-items: center; gap: var(--sp-2); background: var(--surface-primary); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--sp-1) var(--sp-2); cursor: pointer; height: 36px; font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--text-secondary); transition: border-color var(--duration-fast) var(--easing), background var(--duration-fast) var(--easing); }
     .theme-toggle:hover { border-color: var(--border-strong); }
     .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .theme-toggle svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-    /* KPI cards */
     .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-8); }
-    .kpi-card {
-      background: var(--surface-primary); border: 1px solid var(--border-default);
-      border-radius: var(--radius-md); padding: var(--sp-5);
-      transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing);
-    }
+    .kpi-card { background: var(--surface-primary); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--sp-5); transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing); }
     .kpi-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
     .kpi-label { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--sp-2); }
     .kpi-value { font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: var(--text-primary); }
     .kpi-sub { font-size: 12px; color: var(--text-secondary); margin-top: var(--sp-2); }
-
-    /* Table grid */
     .table-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--sp-3); }
-    .table-card {
-      background: var(--surface-primary); border: 1px solid var(--border-default);
-      border-radius: var(--radius-md); padding: var(--sp-4);
-      display: flex; flex-direction: column; gap: var(--sp-2);
-      transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing);
-    }
+    .table-card { background: var(--surface-primary); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing); }
     .table-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
     .table-card-name { font-size: 13px; font-weight: 600; color: var(--text-primary); font-family: var(--font-mono); word-break: break-all; }
     .table-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
@@ -112,32 +90,16 @@
     .table-card-stat { display: flex; flex-direction: column; }
     .table-card-stat-value { font-size: 16px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
     .table-card-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-
-    /* Charts */
     .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
-    .chart-panel {
-      background: var(--surface-primary); border: 1px solid var(--border-default);
-      border-radius: var(--radius-md); padding: var(--sp-6);
-      transition: border-color var(--duration-fast) var(--easing);
-    }
+    .chart-panel { background: var(--surface-primary); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--sp-6); transition: border-color var(--duration-fast) var(--easing); }
     .chart-panel:hover { border-color: var(--border-strong); }
     .chart-panel h3 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--sp-4); }
     .chart-panel .chart-caption { font-size: 12px; color: var(--text-muted); margin-bottom: var(--sp-3); }
     .chart-container { position: relative; width: 100%; height: 320px; }
-
-    /* Flag summary */
     .flag-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
-    .flag-card {
-      background: var(--surface-primary); border: 1px solid var(--border-default);
-      border-radius: var(--radius-md); padding: var(--sp-5); text-align: center;
-      transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing);
-    }
+    .flag-card { background: var(--surface-primary); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--sp-5); text-align: center; transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing); }
     .flag-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
-    .flag-badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      height: 24px; padding: 4px 8px; border-radius: var(--radius-full);
-      font-size: 12px; font-weight: 500; margin-bottom: var(--sp-3);
-    }
+    .flag-badge { display: inline-flex; align-items: center; justify-content: center; height: 24px; padding: 4px 8px; border-radius: var(--radius-full); font-size: 12px; font-weight: 500; margin-bottom: var(--sp-3); }
     .flag-badge.success { color: var(--success-fg); background: var(--success-bg); }
     .flag-badge.warning { color: var(--warning-fg); background: var(--warning-bg); }
     .flag-badge.danger { color: var(--danger-fg); background: var(--danger-bg); }
@@ -146,45 +108,17 @@
     .flag-count { font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: var(--sp-1); }
     .flag-pct { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: var(--sp-2); }
     .flag-value { font-size: 12px; color: var(--text-muted); }
-
-    /* Skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, var(--border-default) 25%, var(--surface-elevated) 50%, var(--border-default) 75%);
-      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm);
-    }
+    .skeleton { background: linear-gradient(90deg, var(--border-default) 25%, var(--surface-elevated) 50%, var(--border-default) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
     @keyframes shimmer { to { background-position: -200% 0; } }
-
-    /* Search */
     .search-bar { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-4); }
-    .search-input {
-      flex: 1; max-width: 320px; height: 36px; padding: 0 var(--sp-3);
-      border: 1px solid var(--border-default); border-radius: var(--radius-md);
-      background: var(--surface-primary); color: var(--text-primary);
-      font-family: var(--font-sans); font-size: 14px;
-      transition: border-color var(--duration-fast) var(--easing);
-    }
+    .search-input { flex: 1; max-width: 320px; height: 36px; padding: 0 var(--sp-3); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-primary); color: var(--text-primary); font-family: var(--font-sans); font-size: 14px; transition: border-color var(--duration-fast) var(--easing); }
     .search-input::placeholder { color: var(--text-muted); }
     .search-input:hover { border-color: var(--border-strong); }
     .search-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
     .search-count { font-size: 12px; color: var(--text-muted); }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      :root { --page-pad: 16px; }
-      .kpi-row { grid-template-columns: repeat(2, 1fr); }
-      .chart-grid { grid-template-columns: 1fr; }
-      .flag-grid { grid-template-columns: repeat(2, 1fr); }
-      .table-grid { grid-template-columns: 1fr; }
-      .page-header h1 { font-size: 20px; }
-      .kpi-value { font-size: 24px; }
-      .flag-count { font-size: 24px; }
-      .chart-container { height: 260px; }
-    }
-    @media (max-width: 390px) {
-      .kpi-row { grid-template-columns: 1fr; }
-      .flag-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { :root { --page-pad: 16px; } .kpi-row { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .flag-grid { grid-template-columns: repeat(2, 1fr); } .table-grid { grid-template-columns: 1fr; } .page-header h1 { font-size: 20px; } .kpi-value { font-size: 24px; } .flag-count { font-size: 24px; } .chart-container { height: 260px; } }
+    @media (max-width: 390px) { .kpi-row { grid-template-columns: 1fr; } .flag-grid { grid-template-columns: 1fr; } }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-full); }
@@ -203,37 +137,18 @@
         <span id="themeLabel">Dark</span>
       </button>
     </header>
-
     <div class="kpi-row" id="kpiRow">
       <div class="kpi-card"><div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:140px"></div></div>
       <div class="kpi-card"><div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:140px"></div></div>
       <div class="kpi-card"><div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:140px"></div></div>
       <div class="kpi-card"><div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:140px"></div></div>
     </div>
-
     <div class="chart-grid section">
-      <div class="chart-panel">
-        <h3>Gross Inventory Value by Plant</h3>
-        <p class="chart-caption">Total stock value (₹ Cr) across all 6 demo plants</p>
-        <div class="chart-container"><canvas id="plantChart"></canvas></div>
-      </div>
-      <div class="chart-panel">
-        <h3>Stock Value by Material Category</h3>
-        <p class="chart-caption">Inventory distribution across 12 material groups</p>
-        <div class="chart-container"><canvas id="categoryChart"></canvas></div>
-      </div>
-      <div class="chart-panel">
-        <h3>Days on Hand Distribution</h3>
-        <p class="chart-caption">Material-plant combinations by days-on-hand bucket</p>
-        <div class="chart-container"><canvas id="dohChart"></canvas></div>
-      </div>
-      <div class="chart-panel">
-        <h3>Inventory Value by Movement Class</h3>
-        <p class="chart-caption">Value split: Active vs Slow-Moving vs NMI vs Obsolete</p>
-        <div class="chart-container"><canvas id="flagValueChart"></canvas></div>
-      </div>
+      <div class="chart-panel"><h3>Gross Inventory Value by Plant</h3><p class="chart-caption">Total stock value (₹ Cr) across all 6 demo plants</p><div class="chart-container"><canvas id="plantChart"></canvas></div></div>
+      <div class="chart-panel"><h3>Stock Value by Material Category</h3><p class="chart-caption">Inventory distribution across 12 material groups</p><div class="chart-container"><canvas id="categoryChart"></canvas></div></div>
+      <div class="chart-panel"><h3>Days on Hand Distribution</h3><p class="chart-caption">Material-plant combinations by days-on-hand bucket</p><div class="chart-container"><canvas id="dohChart"></canvas></div></div>
+      <div class="chart-panel"><h3>Inventory Value by Movement Class</h3><p class="chart-caption">Value split: Active vs Slow-Moving vs NMI vs Obsolete</p><div class="chart-container"><canvas id="flagValueChart"></canvas></div></div>
     </div>
-
     <section class="section">
       <h2 class="section-title">Movement Classification Summary</h2>
       <p class="section-caption">Non-Moving (NMI), Slow-Moving (SMI), Active &amp; Obsolete — as of latest snapshot</p>
@@ -244,7 +159,6 @@
         <div class="flag-card"><div class="skeleton" style="height:24px;width:80px;margin:0 auto 12px"></div><div class="skeleton" style="height:32px;width:60px;margin:0 auto"></div></div>
       </div>
     </section>
-
     <section class="section">
       <h2 class="section-title">Data Source Tables</h2>
       <p class="section-caption">All tables in the VEDANTA_POC schema with row and column counts</p>
@@ -255,14 +169,12 @@
       <div class="table-grid" id="tableGrid"></div>
     </section>
   </div>
-
   <script>
     const html = document.documentElement;
     const toggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
     const themeLabel = document.getElementById('themeLabel');
-
     function setTheme(theme) {
       html.setAttribute('data-theme', theme);
       localStorage.setItem('vedanta-theme', theme);
@@ -274,7 +186,6 @@
     if (saved) setTheme(saved);
     else if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
     toggle.addEventListener('click', () => { setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); });
-
     function fmt(n) { if (n >= 1e7) return '\u20B9' + (n / 1e7).toFixed(2) + ' Cr'; if (n >= 1e5) return '\u20B9' + (n / 1e5).toFixed(2) + ' L'; return '\u20B9' + n.toLocaleString('en-IN'); }
     function fmtShort(n) { if (n >= 1e7) return (n / 1e7).toFixed(1) + ' Cr'; if (n >= 1e5) return (n / 1e5).toFixed(1) + ' L'; return n.toLocaleString('en-IN'); }
     function fmtCount(n) { return n.toLocaleString('en-IN'); }
@@ -284,14 +195,11 @@
         grid: getCSS('--chart-grid'), text: getCSS('--chart-text'),
         successFg: getCSS('--success-fg'), warningFg: getCSS('--warning-fg'), dangerFg: getCSS('--danger-fg'), infoFg: getCSS('--info-fg') };
     }
-
     const DATA_BASE = 'data/';
     async function loadJSON(file) { const r = await fetch(DATA_BASE + file); if (!r.ok) throw new Error('Failed: ' + file); return r.json(); }
-
     let _manifest, _plantData, _catData, _dohData, _flagData;
     let _plantChart, _catChart, _dohChart, _flagValueChart;
     window._chartsReady = false;
-
     async function init() {
       try {
         [_manifest, _plantData, _catData, _dohData, _flagData] = await Promise.all([
@@ -301,7 +209,6 @@
         renderKPIs(); renderFlags(); renderTables(); buildCharts(); window._chartsReady = true;
       } catch (err) { console.error('Dashboard init error:', err); }
     }
-
     function renderKPIs() {
       const totalRows = _manifest.tables.reduce((s, t) => s + t.row_count, 0);
       document.getElementById('kpiRow').innerHTML = `
@@ -310,14 +217,12 @@
         <div class="kpi-card"><div class="kpi-label">Gross Inventory</div><div class="kpi-value">${fmt(_plantData.total_value)}</div><div class="kpi-sub">As of ${_plantData.as_of_date}</div></div>
         <div class="kpi-card"><div class="kpi-label">Materials Tracked</div><div class="kpi-value">${fmtCount(_flagData.total_items)}</div><div class="kpi-sub">Material-plant combinations</div></div>`;
     }
-
     function renderFlags() {
       document.getElementById('flagGrid').innerHTML = _flagData.flags.map(f => `
         <div class="flag-card"><div class="flag-badge ${f.semantic}">${f.label}</div>
         <div class="flag-count">${fmtCount(f.count)}</div><div class="flag-pct">${f.percentage}%</div>
         <div class="flag-value">${fmt(f.value)}</div></div>`).join('');
     }
-
     function renderTables(filter) {
       const q = (filter || '').toLowerCase();
       const tables = _manifest.tables.filter(t => !q || t.table_name.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q));
@@ -329,11 +234,22 @@
         <div class="table-card-stat"><span class="table-card-stat-value">${t.column_count}</span><span class="table-card-stat-label">Columns</span></div></div></div>`).join('');
     }
     document.getElementById('tableSearch').addEventListener('input', e => { renderTables(e.target.value); });
-
     function buildCharts() {
+      if (typeof Chart === 'undefined') {
+        document.querySelectorAll('.chart-container').forEach(el => {
+          if (el.querySelector('.chart-fallback')) return;
+          const msg = document.createElement('p');
+          msg.className = 'chart-fallback';
+          msg.textContent = 'Chart library unavailable \u2014 enable CDN access to view charts.';
+          msg.style.cssText = 'text-align:center;padding:2rem;color:var(--text-muted);font-size:var(--fs-sm)';
+          const canvas = el.querySelector('canvas');
+          if (canvas) canvas.style.display = 'none';
+          el.appendChild(msg);
+        });
+        return;
+      }
       const c = chartColors();
       Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
-
       _plantChart = new Chart(document.getElementById('plantChart').getContext('2d'), {
         type: 'bar', data: { labels: _plantData.plants.map(p => p.plant_name),
           datasets: [{ label: 'Value (\u20B9 Cr)', data: _plantData.plants.map(p => +(p.value / 1e7).toFixed(2)), backgroundColor: c.s1, borderRadius: 4, barThickness: 28 }] },
@@ -341,7 +257,6 @@
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '\u20B9' + ctx.parsed.x.toFixed(2) + ' Cr' } } },
           scales: { x: { grid: { color: c.grid }, ticks: { color: c.text, callback: v => v + ' Cr' } }, y: { grid: { display: false }, ticks: { color: c.text, font: { size: 12 } } } } }
       });
-
       const topCats = _catData.categories.slice(0, 8);
       const catPalette = [c.s1, c.s2, c.s3, c.s4, c.s5, c.s1+'cc', c.s2+'cc', c.s3+'cc'];
       _catChart = new Chart(document.getElementById('categoryChart').getContext('2d'), {
@@ -351,7 +266,6 @@
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '\u20B9' + ctx.parsed.x.toFixed(2) + ' Cr \u00B7 ' + topCats[ctx.dataIndex].material_count + ' materials' } } },
           scales: { x: { grid: { color: c.grid }, ticks: { color: c.text, callback: v => v + ' Cr' } }, y: { grid: { display: false }, ticks: { color: c.text, font: { size: 11 } } } } }
       });
-
       const dohColors = [c.dangerFg, c.s2, c.s1, c.s3, c.warningFg, c.dangerFg+'aa'];
       _dohChart = new Chart(document.getElementById('dohChart').getContext('2d'), {
         type: 'bar', data: { labels: _dohData.buckets.map(b => b.range),
@@ -360,7 +274,6 @@
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmtCount(ctx.parsed.y) + ' items (' + (100 * ctx.parsed.y / _dohData.total_items).toFixed(1) + '%)' } } },
           scales: { x: { grid: { display: false }, ticks: { color: c.text, font: { size: 11 }, maxRotation: 45 } }, y: { grid: { color: c.grid }, ticks: { color: c.text, callback: v => fmtCount(v) } } } }
       });
-
       const flagColors = _flagData.flags.map(f => ({ success: c.successFg, warning: c.warningFg, danger: c.dangerFg, info: c.infoFg }[f.semantic] || c.s1));
       _flagValueChart = new Chart(document.getElementById('flagValueChart').getContext('2d'), {
         type: 'doughnut', data: { labels: _flagData.flags.map(f => f.label),
@@ -370,7 +283,6 @@
             tooltip: { callbacks: { label: ctx => ctx.label + ': \u20B9' + ctx.parsed.toFixed(2) + ' Cr (' + _flagData.flags[ctx.dataIndex].percentage + '%)' } } } }
       });
     }
-
     function rebuildCharts() {
       if (_plantChart) _plantChart.destroy();
       if (_catChart) _catChart.destroy();
@@ -378,7 +290,6 @@
       if (_flagValueChart) _flagValueChart.destroy();
       buildCharts();
     }
-
     init();
   </script>
 </body>
