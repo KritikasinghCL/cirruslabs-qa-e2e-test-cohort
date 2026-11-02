@@ -137,7 +137,8 @@ def _load_contract(dataset: str) -> Optional[Dict[str, Any]]:
     path = _CONTRACTS_DIR / f"{stem}.json"
     try:
         with path.open("r", encoding="utf-8") as fh:
-            return json.load(fh)
+            result: Dict[str, Any] = json.load(fh)
+            return result
     except FileNotFoundError:
         logger.error("Contract file not found: %s", path)
     except json.JSONDecodeError as exc:
