@@ -14,7 +14,6 @@ Acceptance criteria verified:
   AC10 Method section contains numbered/labelled steps
 """
 
-import os
 import pathlib
 import re
 
