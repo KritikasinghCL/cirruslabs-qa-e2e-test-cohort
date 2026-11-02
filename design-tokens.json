@@ -16,7 +16,7 @@
       "text": {
         "primary": "#0F172A",
         "secondary": "#475569",
-        "muted": "#94A3B8",
+        "muted": "#64748B",
         "inverse": "#FFFFFF"
       },
       "accent": {
@@ -52,7 +52,7 @@
       "text": {
         "primary": "#F8FAFC",
         "secondary": "#CBD5E1",
-        "muted": "#64748B",
+        "muted": "#94A3B8",
         "inverse": "#0F172A"
       },
       "accent": {
