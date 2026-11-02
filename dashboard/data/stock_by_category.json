@@ -1,0 +1,18 @@
+{
+  "as_of_date": "2025-12-31",
+  "currency": "INR",
+  "categories": [
+    {"category": "Bearing Components", "material_count": 1654, "value": 1690026765.89},
+    {"category": "Mechanical", "material_count": 1516, "value": 1202701792.28},
+    {"category": "Conveyor Components", "material_count": 728, "value": 817190032.07},
+    {"category": "Instrumentation", "material_count": 177, "value": 429389525.69},
+    {"category": "Pump Components", "material_count": 338, "value": 344795147.20},
+    {"category": "Electrical", "material_count": 350, "value": 198734490.60},
+    {"category": "Valves & Fittings", "material_count": 217, "value": 177438266.36},
+    {"category": "Safety", "material_count": 563, "value": 147296290.02},
+    {"category": "Filters", "material_count": 247, "value": 91334040.66},
+    {"category": "Consumables", "material_count": 165, "value": 25910985.86},
+    {"category": "Fasteners", "material_count": 37, "value": 255272.73},
+    {"category": "Lubricants", "material_count": 8, "value": 150337.42}
+  ]
+}

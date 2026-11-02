@@ -1,0 +1,12 @@
+{
+  "as_of_date": "2025-12-31",
+  "total_items": 34717,
+  "buckets": [
+    {"range": "0 (Stockout)", "min": 0, "max": 0, "count": 6270},
+    {"range": "1\u201330 days", "min": 1, "max": 30, "count": 707},
+    {"range": "31\u201390 days", "min": 31, "max": 90, "count": 2638},
+    {"range": "91\u2013180 days", "min": 91, "max": 180, "count": 3782},
+    {"range": "181\u2013365 days", "min": 181, "max": 365, "count": 4853},
+    {"range": "365+ days", "min": 366, "max": 99999, "count": 16467}
+  ]
+}
