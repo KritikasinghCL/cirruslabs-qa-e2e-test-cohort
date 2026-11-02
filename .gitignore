@@ -20,6 +20,10 @@ htmlcov/
 venv/
 env/
 
+# SAP extraction outputs (Parquet files are build artifacts)
+sap_extraction/parquet/
+sap_extraction/manifest.json
+
 # Editor / OS noise
 .DS_Store
 Thumbs.db
